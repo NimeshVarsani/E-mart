@@ -5,10 +5,24 @@ class Notifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: const Color(0xff2874F0),
+        title: const Text('Notification'),
+      ),
       body: SafeArea(
         child: Center(
-          child: Text('Notifications'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/notifications.jpg', height: 180,),
+              const SizedBox(height: 25.0,),
+              const Text('You have No Notifications'),
+
+            ],
+          ),
         ),
       ),
     );
