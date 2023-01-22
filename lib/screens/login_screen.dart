@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SnackBar(
                 content: Text("Logged In Successfully"),
               ));
-          Navigator.push(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => HomeScreen()));
         }
       } on FirebaseAuthException catch (e) {
