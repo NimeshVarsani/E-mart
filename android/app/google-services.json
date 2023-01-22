@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "775493827576",
+    "project_id": "m-mart-a9dc4",
+    "storage_bucket": "m-mart-a9dc4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:775493827576:android:7cb216eedfa997414df40d",
+        "android_client_info": {
+          "package_name": "com.example.mmart"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "775493827576-a5jnaahm94jmebr77b7ub5dr0nofn44s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSZ81rtMkJjrIhP7UFi0F1t_xYFVZtFkE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "775493827576-a5jnaahm94jmebr77b7ub5dr0nofn44s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
