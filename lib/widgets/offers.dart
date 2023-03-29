@@ -17,17 +17,17 @@ class _OffersState extends State<Offers> {
         children: <Widget>[
           Expanded(
             child: Image.asset(
-                "assets/telivision.png"
+                "assets/images/telivision.png"
             ),
           ),
           Expanded(
             child: Image.asset(
-                "assets/running.png"
+                "assets/images/running.png"
             ),
           ),
           Expanded(
             child: Image.asset(
-                "assets/mobile_top.png"
+                "assets/images/mobile_top.png"
             ),
           ),
         ],

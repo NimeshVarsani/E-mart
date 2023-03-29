@@ -30,7 +30,7 @@ class _FeaturedBrandState extends State<FeaturedBrand> {
               child: Text('Sponsored',style: TextStyle(color: Colors.grey),),
             ),
             Image.asset(
-              "assets/power_bank.png",
+              "assets/images/power_bank.png",
               height: MediaQuery.of(context).size.height / 3.5,
               width: MediaQuery.of(context).size.width,
             )

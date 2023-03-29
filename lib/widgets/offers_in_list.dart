@@ -17,11 +17,11 @@ class _OffersInListState extends State<OffersInList> {
           children: <Widget>[
             Expanded(
               child: Image.asset(
-                  "assets/hair_dryer.png"),
+                  "assets/images/hair_dryer.png"),
             ),
             Expanded(
               child: Image.asset(
-                  "assets/laptop.png"),
+                  "assets/images/laptop.png"),
             )
           ],
         ),

@@ -9,15 +9,15 @@ class CategoriesList extends StatefulWidget {
 
 class _CategoriesListState extends State<CategoriesList> {
   var name = [
-    "assets/applinces.png",
-    "assets/beauty.png",
-    "assets/electronic.png",
-    "assets/fashion.png",
-    "assets/grocery.png",
-    "assets/mobiles.png",
-    "assets/sports_and_more.png",
-    "assets/toys_and_babby.png",
-    "assets/home.png"
+    "assets/images/applinces.png",
+    "assets/images/beauty.png",
+    "assets/images/electronic.png",
+    "assets/images/fashion.png",
+    "assets/images/grocery.png",
+    "assets/images/mobiles.png",
+    "assets/images/sports_and_more.png",
+    "assets/images/toys_and_babby.png",
+    "assets/images/home.png"
   ];
 
   buildItem(BuildContext context, int index) {
