@@ -92,15 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     userId = FirebaseAuth.instance.currentUser?.uid ?? "";
 
-    // FirebaseFirestore.instance
-    //     .collection('products').doc(userId).set
-    //   ({
-    // 'text': 'data added through app',
-    // 'text': 'data added through app',
-    // 'text': 'data added through app',
-    // 'text': 'data added through app'
-    //
-    // });
   }
 
   ListQueue<int> _navigationQueue = ListQueue();
@@ -110,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return WillPopScope(
       onWillPop: _showAlertDialog,
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         // appBar: AppBar(
         //   title: Text('E-Mart'),
         //   backgroundColor: ColorAll.colorsPrimary,
