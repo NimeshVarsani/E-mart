@@ -192,42 +192,55 @@ class _HomeState extends State<Home> {
                     SizedBox(
                       height: 10,
                     ),
-                    PreferredSize(
-                      preferredSize: Size.fromHeight(kToolbarHeight + 90.0),
-                      child: Container(),
-                    ),
                     Container(
-                      width: mainWidth,
-                      height: 45,
-                      margin: EdgeInsets.only(
-                        top: 2.sp,
-                        bottom: 8.sp,
-                        left: 20,
-                        right: 20,
-                      ),
-                      padding: EdgeInsets.only(
-                        left: 8.sp,
-                        // right: 8.sp,
-                      ),
-                      decoration: BoxDecoration(
-                        // color: Colors.white,
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                          color: Colors.grey,
-                          width: 1,
-                        ),
-                      ),
-                      child: TextField(
-                        textInputAction: TextInputAction.none,
-                        controller: searchController,
-                        decoration: InputDecoration(
-                            border: InputBorder.none,
-                            hintText: 'Search by Product, Brand & more...',
-                            prefixIcon: Icon(Icons.search)),
-                        onChanged: (value) {
-                          searchDir(value);
-                        },
+                      color: Colors.grey.shade300,
+                      height: kToolbarHeight + 120.0,
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text('EMART', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              width: mainWidth,
+                              height: 50,
+                              margin: EdgeInsets.only(
+                                top: 2.sp,
+                                bottom: 14.sp,
+                                left: 20,
+                                right: 20,
+                              ),
+                              child: TextField(
+                                textInputAction: TextInputAction.none,
+                                controller: searchController,
+                                decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        width: 1, color: Colors.grey),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        width: 1, color: Colors.grey),
+                                  ),
+                                  // border: InputBorder.none,
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  contentPadding: EdgeInsets.all(8),
+                                  hintText:
+                                      'Search by Product, Brand & more...',
+                                  prefixIcon: Icon(Icons.search),
+                                ),
+                                onChanged: (value) {
+                                  searchDir(value);
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Expanded(
