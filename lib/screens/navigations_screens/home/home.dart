@@ -55,19 +55,62 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List productsList = [];
   List searchProductsList = [];
+  List filteredList = [];
   var progress;
+  bool isLoaded = false;
+
+  final _focusNode = FocusNode();
+  bool _keyboardVisible = false;
 
   TextEditingController searchController = TextEditingController();
-  final dbRef = FirebaseDatabase.instance.ref().child('new_products/products');
+
+  // final dbRef = FirebaseDatabase.instance.ref().child('new_products/products');
+
+  final List<String> filterNames = [
+    'Category',
+    'Brand',
+    'Color',
+    'Price',
+  ];
+
+  final Map<String, List<String>> filterValues = {
+    'Category': [
+      'smartphones',
+      'laptops',
+      'fragrances',
+      'skincare',
+      'groceries',
+      'home-decoration'
+    ],
+    'Brand': ['Apple', 'OPPO', 'Royal_Mirage', 'Reebok'],
+    'Color': ['Red', 'Blue', 'Green', 'Yellow'],
+    'Price': ['Below 500', '500 - 1000', '1000 - 2000', 'Above 2000'],
+  };
+
+  String selectedFiltersType = "Category";
+  List selectedFilters = [];
 
   @override
   void initState() {
     super.initState();
+    _focusNode.addListener(() {
+      setState(() {
+        _keyboardVisible = _focusNode.hasFocus;
+        if (!_keyboardVisible) {
+          print('unfocus=-=-=>');
+          FocusScope.of(context).unfocus();
+        }
+        print('_keyboardVisible=-=>' + _keyboardVisible.toString());
+      });
+    });
+
     getproductData();
+    // getFilteredProducts();
   }
 
   getproductData() async {
     productsList.clear();
+    searchProductsList.clear();
     DatabaseReference databaseReference =
         FirebaseDatabase.instance.ref().child('new_products/products');
     // FirebaseDatabase.instance.ref().child('products');
@@ -76,11 +119,54 @@ class _HomeState extends State<Home> {
       setState(() {
         productsList = snapshot.snapshot.value as List;
         searchProductsList = snapshot.snapshot.value as List;
+        isLoaded = true;
       });
 
       var jsonData = productsList[1]['category'];
       print('jsonDataList=-=>' + productsList.toString());
       print('jsonData=-=>' + jsonData.toString());
+    });
+  }
+
+  getFilteredProducts() async {
+    productsList = [];
+    searchProductsList = [];
+    filteredList = [];
+    setState(() {
+      isLoaded = false;
+    });
+
+    DatabaseReference databaseReference =
+        FirebaseDatabase.instance.ref().child('new_products/products');
+    // FirebaseDatabase.instance.ref().child('products');
+
+    databaseReference.once().then((snapshot) {
+      setState(() {
+        productsList = snapshot.snapshot.value as List;
+        searchProductsList = snapshot.snapshot.value as List;
+        isLoaded = true;
+      });
+
+      if (selectedFilters.isNotEmpty) {
+        for (var element in productsList) {
+          for (var filter in selectedFilters) {
+            if (element['category'] == filter) {
+              print('executes');
+              setState(() {
+                filteredList.add(element);
+              });
+            }
+          }
+        }
+
+        setState(() {
+          productsList = [];
+          searchProductsList = [];
+          productsList = filteredList;
+          searchProductsList = filteredList;
+        });
+      }
+      print('filteredList.toString()' + productsList.toString());
     });
   }
 
@@ -114,7 +200,7 @@ class _HomeState extends State<Home> {
 
   Widget buildProductsShimmer() {
     return Padding(
-      padding: const EdgeInsets.only(top: 18.0),
+      padding: const EdgeInsets.only(top: 100.0),
       child: ListView.builder(
           itemCount: 10,
           shrinkWrap: true,
@@ -170,6 +256,129 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Widget filterWidget(BuildContext context, var mainHeight) {
+    return StatefulBuilder(
+        builder: (BuildContext context, StateSetter stateSetter) {
+      return Stack(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Container(
+                  color: Colors.grey[200],
+                  child: ListView.builder(
+                    itemCount: filterNames.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final filterName = filterNames[index];
+                      return ListTile(
+                        title: Text(
+                          filterName,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        selected: selectedFiltersType == filterName,
+                        onTap: () {
+                          // because its in modalbottomsheet
+                          stateSetter(() {
+                            selectedFiltersType = filterName;
+                            print(filterValues['Category'].toString());
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: ListView.builder(
+                  itemCount: filterValues[selectedFiltersType]?.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    // if (!selectedFilters.contains(filterNames[index])) {
+                    //   return Container();
+                    // }
+                    final value = filterValues[selectedFiltersType]?[index];
+                    return ListTile(
+                      title: Text(value ?? ""),
+                      trailing: Checkbox(
+                        value: selectedFilters.contains(value),
+                        onChanged: (boolValue) {
+                          stateSetter(() {
+                            print(boolValue);
+
+                            if (boolValue ?? false) {
+                              selectedFilters.add(value);
+                            } else {
+                              selectedFilters.remove(value);
+                            }
+                          });
+                          print(selectedFilters.toString());
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: mainHeight / 10,
+              color: Colors.white,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 64,
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                        ),
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        onPressed: () {
+                          stateSetter(() {
+                            selectedFilters.clear();
+                            getproductData();
+                          });
+                          // Reset the selected filters here
+                        },
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: 64,
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          textStyle: TextStyle(color: Colors.white),
+                        ),
+                        child: Text('Apply'),
+                        onPressed: () {
+                          // Apply the selected filters here
+                          getFilteredProducts();
+                          Navigator.of(context)
+                              .pop(); // Close the filter screen
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var mainHeight = MediaQuery.of(context).size.height;
@@ -183,7 +392,7 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         backgroundColor: ColorAll.colorsPrimary,
       ),*/
-      body: (productsList.isNotEmpty)
+      body: (isLoaded)
           ? Container(
               child: SizedBox(
                 height: mainHeight,
@@ -193,13 +402,46 @@ class _HomeState extends State<Home> {
                       height: 10,
                     ),
                     Container(
-                      color: Colors.grey.shade300,
+                      color: Colors.blueGrey[50],
                       height: kToolbarHeight + 120.0,
                       child: Stack(
                         children: [
                           Align(
+                            alignment: Alignment.centerRight,
+                            child: InkWell(
+                              onTap: (){
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext ctx) {
+                                      return filterWidget(ctx, mainHeight);
+                                    });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 10.0, bottom: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text('Filters', style: TextStyle(fontSize: 16),),
+                                    Icon(
+                                      Icons.filter_list,
+                                      size: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Align(
                             alignment: Alignment.center,
-                            child: Text('EMART', style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20),),
+                            child: Text(
+                              'EMART',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 24,
+                                color: ColorAll.colorsPrimary,
+                                fontFamily: 'Vesper Libre',
+                              ),
+                            ),
                           ),
                           Align(
                             alignment: Alignment.bottomCenter,
@@ -213,18 +455,22 @@ class _HomeState extends State<Home> {
                                 right: 20,
                               ),
                               child: TextField(
+                                focusNode: _focusNode,
                                 textInputAction: TextInputAction.none,
                                 controller: searchController,
+                                cursorColor: ColorAll.colorsPrimary,
                                 decoration: InputDecoration(
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
-                                        width: 1, color: Colors.grey),
+                                        width: 1, color: Colors.grey.shade400),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     borderSide: BorderSide(
-                                        width: 1, color: Colors.grey),
+                                      width: 1,
+                                      color: ColorAll.colorsPrimary,
+                                    ),
                                   ),
                                   // border: InputBorder.none,
                                   fillColor: Colors.white,
@@ -232,7 +478,20 @@ class _HomeState extends State<Home> {
                                   contentPadding: EdgeInsets.all(8),
                                   hintText:
                                       'Search by Product, Brand & more...',
+                                  hintStyle: TextStyle(color: Colors.grey),
                                   prefixIcon: Icon(Icons.search),
+                                  suffixIcon: (_keyboardVisible)
+                                      ? IconButton(
+                                          icon: Icon(
+                                            Icons.cancel,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                          onPressed: () {
+                                            searchController.clear();
+                                            // _focusNode.unfocus();
+                                            searchDir("");
+                                          })
+                                      : null,
                                 ),
                                 onChanged: (value) {
                                   searchDir(value);
@@ -243,119 +502,125 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: ListView.builder(
-                        padding:
-                            EdgeInsets.only(bottom: 33, left: 10, right: 10),
-                        itemCount: productsList.length,
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        shrinkWrap: true,
-                        physics: AlwaysScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ProductDetails(context, index),
-                                ),
-                              );
-                            },
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              elevation: 1.0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  //image
-                                  Container(
-                                    height: 200.0,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
+                    (productsList.isNotEmpty)
+                        ? Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.only(
+                                  bottom: 33, left: 10, right: 10),
+                              itemCount: productsList.length,
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              shrinkWrap: true,
+                              physics: AlwaysScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProductDetails(context, index),
                                       ),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          productsList[index]['thumbnail']
-                                              .toString(),
-                                          // productsList[index]['category']['image']
-                                          //     .toString(),
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                                    );
+                                  },
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.all(12.0),
+                                    elevation: 1.0,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: <Widget>[
-                                        Text(
-                                          productsList[index]['brand']
-                                              .toString(),
-                                          style: TextStyle(
-                                            fontSize: 16.0,
-                                            color: Colors.grey.shade600,
+                                        //image
+                                        Container(
+                                          height: 200.0,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(10.0),
+                                            ),
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                productsList[index]['thumbnail']
+                                                    .toString(),
+                                                // productsList[index]['category']['image']
+                                                //     .toString(),
+                                              ),
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
-                                        SizedBox(height: 8.0),
-                                        Text(
-                                          productsList[index]['title']
-                                              .toString(),
-                                          style: TextStyle(
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8.0),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              '\$${productsList[index]['price'].toString()}',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.w700,
+                                        Padding(
+                                          padding: EdgeInsets.all(12.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                productsList[index]['brand']
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  color: Colors.grey.shade600,
+                                                ),
                                               ),
-                                            ),
-                                            SizedBox(
-                                              width: 6,
-                                            ),
-                                            Text(
-                                              '\$${productsList[index]['price'].toString()}',
-                                              style: TextStyle(
-                                                fontSize: 16.0,
-                                                color: Colors.grey.shade500,
-                                                decoration:
-                                                    TextDecoration.lineThrough,
+                                              SizedBox(height: 8.0),
+                                              Text(
+                                                productsList[index]['title']
+                                                    .toString(),
+                                                style: TextStyle(
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 4,
-                                        ),
-                                        Text(
-                                          '${productsList[index]['discountPercentage'].toString()}\% off',
-                                          style: TextStyle(
-                                            fontSize: 14.0,
-                                            color: Colors.green,
-                                            fontWeight: FontWeight.w600,
+                                              SizedBox(height: 8.0),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    '\$${productsList[index]['price'].toString()}',
+                                                    style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 6,
+                                                  ),
+                                                  Text(
+                                                    '\$${productsList[index]['price'].toString()}',
+                                                    style: TextStyle(
+                                                      fontSize: 16.0,
+                                                      color:
+                                                          Colors.grey.shade500,
+                                                      decoration: TextDecoration
+                                                          .lineThrough,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 4,
+                                              ),
+                                              Text(
+                                                '${productsList[index]['discountPercentage'].toString()}\% off',
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-                    )
+                          )
+                        : noDataFound(context),
                   ],
                 ),
               ),

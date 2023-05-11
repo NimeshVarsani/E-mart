@@ -256,8 +256,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           // side: BorderSide(color: Colors.black)
                         ))),
                     onPressed: () {
-                      _emailController.text = 'nimeshinvest1@gmail.com';
-                      _passwordController.text = 'nim123';
+                      _emailController.text = 'adminemart@gmail.com';
+                      _passwordController.text = 'admin@123!';
                       // _emailController.text = 'nimeshvarsani7@gmail.com';
                       // _passwordController.text = 'nim123';
                       login();
