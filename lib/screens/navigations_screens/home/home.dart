@@ -261,65 +261,117 @@ class _HomeState extends State<Home> {
         builder: (BuildContext context, StateSetter stateSetter) {
       return Stack(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: Container(
-                  color: Colors.grey[200],
-                  child: ListView.builder(
-                    itemCount: filterNames.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final filterName = filterNames[index];
-                      return ListTile(
-                        title: Text(
-                          filterName,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+          Container(
+            height: mainHeight/2,
+            child: Column(
+              children: [
+                Container(
+                  height: 40,
+                  child: Center(
+                      child: Text(
+                    'Filters',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  )),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            // borderRadius:
+                            //     BorderRadius.only(topLeft: Radius.circular(20)),
+                          ),
+                          child: ListView.builder(
+                            itemCount: filterNames.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final filterName = filterNames[index];
+                              return ListTile(
+                                title: Text(
+                                  filterName,
+                                  style: TextStyle(
+                                      fontWeight:
+                                          (selectedFiltersType == filterName)
+                                              ? FontWeight.w500
+                                              : null,
+                                      color: (selectedFiltersType == filterName)
+                                          ? Colors.black
+                                          : null),
+                                ),
+                                selected: selectedFiltersType == filterName,
+                                onTap: () {
+                                  // because its in modalbottomsheet
+                                  stateSetter(() {
+                                    selectedFiltersType = filterName;
+                                    print(filterValues['Category'].toString());
+                                  });
+                                },
+                              );
+                            },
+                          ),
                         ),
-                        selected: selectedFiltersType == filterName,
-                        onTap: () {
-                          // because its in modalbottomsheet
-                          stateSetter(() {
-                            selectedFiltersType = filterName;
-                            print(filterValues['Category'].toString());
-                          });
-                        },
-                      );
-                    },
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: ListView.builder(
+                          itemCount: filterValues[selectedFiltersType]?.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            // if (!selectedFilters.contains(filterNames[index])) {
+                            //   return Container();
+                            // }
+                            final value =
+                                filterValues[selectedFiltersType]?[index];
+                            return CheckboxListTile(
+                              title: Text(value ?? ""),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: Colors.black,
+                              checkboxShape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(4),
+                                ),
+                              ),
+                              value: selectedFilters.contains(value),
+                              onChanged: (boolValue) {
+                                stateSetter(() {
+                                  print(boolValue);
+
+                                  if (boolValue ?? false) {
+                                    selectedFilters.add(value);
+                                  } else {
+                                    selectedFilters.remove(value);
+                                  }
+                                });
+                                print(selectedFilters.toString());
+                              },
+                            );
+                            return ListTile(
+                              title: Text(value ?? ""),
+                              trailing: Checkbox(
+                                value: selectedFilters.contains(value),
+                                onChanged: (boolValue) {
+                                  stateSetter(() {
+                                    print(boolValue);
+
+                                    if (boolValue ?? false) {
+                                      selectedFilters.add(value);
+                                    } else {
+                                      selectedFilters.remove(value);
+                                    }
+                                  });
+                                  print(selectedFilters.toString());
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 3,
-                child: ListView.builder(
-                  itemCount: filterValues[selectedFiltersType]?.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    // if (!selectedFilters.contains(filterNames[index])) {
-                    //   return Container();
-                    // }
-                    final value = filterValues[selectedFiltersType]?[index];
-                    return ListTile(
-                      title: Text(value ?? ""),
-                      trailing: Checkbox(
-                        value: selectedFilters.contains(value),
-                        onChanged: (boolValue) {
-                          stateSetter(() {
-                            print(boolValue);
-
-                            if (boolValue ?? false) {
-                              selectedFilters.add(value);
-                            } else {
-                              selectedFilters.remove(value);
-                            }
-                          });
-                          print(selectedFilters.toString());
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -409,19 +461,29 @@ class _HomeState extends State<Home> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: InkWell(
-                              onTap: (){
+                              onTap: () {
                                 showModalBottomSheet(
                                     context: context,
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(20.0),
+                                        topRight: Radius.circular(20.0),
+                                      ),
+                                    ),
                                     builder: (BuildContext ctx) {
                                       return filterWidget(ctx, mainHeight);
                                     });
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 10.0, bottom: 10),
+                                padding: const EdgeInsets.only(
+                                    right: 10.0, bottom: 10),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Text('Filters', style: TextStyle(fontSize: 16),),
+                                    Text(
+                                      'Filters',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
                                     Icon(
                                       Icons.filter_list,
                                       size: 30,
