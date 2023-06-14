@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:emart/main.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:emart/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -27,23 +27,17 @@ class AddAddressScreen extends StatelessWidget {
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return ProgressHUD(
-            backgroundColor: Colors.white,
-            indicatorColor: ColorAll.colorsPrimary,
-            textStyle: TextStyle(
-              color: ColorAll.colorsPrimary,
-              fontSize: 18.sp,
-            ),
-            child: Builder(
-              builder: (ctxProg) => MyAddAddressScreen(ctxProg, addressName),
-            ),
-          );
-        });
+    return ProgressHUD(
+      backgroundColor: Colors.white,
+      indicatorColor: ColorAll.colorsPrimary,
+      textStyle: TextStyle(
+        color: ColorAll.colorsPrimary,
+        fontSize: 18.sp,
+      ),
+      child: Builder(
+        builder: (ctxProg) => MyAddAddressScreen(ctxProg, addressName),
+      ),
+    );
   }
 }
 
@@ -115,7 +109,6 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
         isDefault = (data['default'].toString() == '1') ? true : false;
       });
 
-
       print('address_name=-=' + data['address_name']);
       print('street_address=-=' + data['street_address']);
       print('city=-=' + data['city']);
@@ -123,7 +116,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
       print('pincode=-=' + data['pincode']);
       print('mob_no=-=' + data['mob_no']);
     } else {
-      Util.showToast('No adress present');
+      UiUtils.showToast('No adress present');
     }
 
     Timer(const Duration(milliseconds: 20), () {
@@ -157,7 +150,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
       'default': (isDefault) ? '1' : '0',
     });
 
-    Util.showToast('Address Added');
+    UiUtils.showToast('Address Added');
     Navigator.of(ctxAA!).pop(true);
     Timer(const Duration(milliseconds: 20), () {
       progress.dismiss();
@@ -190,7 +183,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
       'default': (isDefault) ? '1' : '0',
     });
 
-    Util.showToast('Address Added');
+    UiUtils.showToast('Address Added');
     Navigator.of(ctxAA!).pop(true);
     Timer(const Duration(milliseconds: 20), () {
       progress.dismiss();
@@ -203,7 +196,6 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
     var mainWidth = MediaQuery.of(context).size.width;
     var mainHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.blueGrey[50],
         appBar: AppBar(
           backgroundColor: ColorAll.colorsPrimary,
@@ -220,145 +212,139 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
           ),
         ),
         body: Container(
-          // height: mainHeight,
-          padding: EdgeInsets.only(left: 10, right: 10, top: 10),
-          child: ListView(
-            children: [
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "Address Name",
-                hintText: "Enter Address Name",
-                containerHeight: 36.h,
-                controller: _addressnameController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "Street Address",
-                hintText: "Flat No. or Building name",
-                containerHeight: 36.h,
-                controller: _streetController,
-                textInputAction: TextInputAction.next,
-              ),
-              TextFieldWidget(
-                text: "Area Name",
-                hintText: "Area name",
-                containerHeight: 36.h,
-                controller: _areaController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "City",
-                hintText: "Enter City",
-                containerHeight: 36.h,
-                controller: _cityController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "State",
-                hintText: "Enter State",
-                containerHeight: 36.h,
-                controller: _stateController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "Country",
-                hintText: "Enter Country",
-                containerHeight: 36.h,
-                controller: _countryController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 1.h,
-              ),
-              TextFieldWidget(
-                text: "Postal Code",
-                hintText: "Enter Postal Code",
-                containerHeight: 36.h,
-                keyBoardType: TextInputType.number,
-                controller: _postalcodeController,
-                textInputAction: TextInputAction.next,
-              ),
-              SizedBox(
-                height: 2.h,
-              ),
-              TextFieldWidget(
-                text: "Mobile Number",
-                hintText: "Enter Mobile Number",
-                containerHeight: 36.h,
-                keyBoardType: TextInputType.number,
-                controller: _mobilenumberController,
-                textInputAction: TextInputAction.next,
-              ),
-              // SizedBox(
-              //   height: 2.h,
-              // ),
-              Container(
-                margin: EdgeInsets.only(bottom: 10),
-                child: CheckboxListTile(
-                  title: const Text('Make as Default Address'),
-                  autofocus: false,
-                  activeColor: ColorAll.colorsPrimary,
-                  controlAffinity: ListTileControlAffinity.leading,
-
-                  checkColor: Colors.white,
-                  value: isDefault,
-                  onChanged: (value) {
-                    setState(() {
-                      isDefault = value!;
-                    });
-                  },
+            // height: mainHeight,
+            padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+            child: SingleChildScrollView(
+              child: Column(children: [
+                SizedBox(
+                  height: 1.h,
                 ),
-              ),
-              SizedBox(
-                width: mainWidth / 2.5,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(ColorAll.colorsPrimary)),
-                  onPressed: () async {
-
-                    if(_addressnameController.text.isNotEmpty &&
-                        _streetController.text.isNotEmpty &&
-                        _areaController.text.isNotEmpty &&
-                        _cityController.text.isNotEmpty &&
-                        _stateController.text.isNotEmpty &&
-                        _countryController.text.isNotEmpty &&
-                        _postalcodeController.text.isNotEmpty &&
-                        _mobilenumberController.text.isNotEmpty){
-
-                      if (widget.addressName.isNotEmpty) {
-                        updateAddress();
-                      } else {
-                        addAddress();
-                      }
-
-                    }else{
-                      Util.showToast('Please enter all Fields');
-                    }
-
-                  },
-                  child: Text(
-                    "Submit",
-                    style: TextStyle(fontSize: 15.0, color: Colors.white),
+                TextFieldWidget(
+                  text: "Address Name",
+                  hintText: "Enter Address Name",
+                  containerHeight: 36.h,
+                  controller: _addressnameController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                TextFieldWidget(
+                  text: "Street Address",
+                  hintText: "Flat No. or Building name",
+                  containerHeight: 36.h,
+                  controller: _streetController,
+                  textInputAction: TextInputAction.next,
+                ),
+                TextFieldWidget(
+                  text: "Area Name",
+                  hintText: "Area name",
+                  containerHeight: 36.h,
+                  controller: _areaController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                TextFieldWidget(
+                  text: "City",
+                  hintText: "Enter City",
+                  containerHeight: 36.h,
+                  controller: _cityController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                TextFieldWidget(
+                  text: "State",
+                  hintText: "Enter State",
+                  containerHeight: 36.h,
+                  controller: _stateController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                TextFieldWidget(
+                  text: "Country",
+                  hintText: "Enter Country",
+                  containerHeight: 36.h,
+                  controller: _countryController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 1.h,
+                ),
+                TextFieldWidget(
+                  text: "Postal Code",
+                  hintText: "Enter Postal Code",
+                  containerHeight: 36.h,
+                  keyBoardType: TextInputType.number,
+                  controller: _postalcodeController,
+                  textInputAction: TextInputAction.next,
+                ),
+                SizedBox(
+                  height: 2.h,
+                ),
+                TextFieldWidget(
+                  text: "Mobile Number",
+                  hintText: "Enter Mobile Number",
+                  containerHeight: 36.h,
+                  keyBoardType: TextInputType.number,
+                  controller: _mobilenumberController,
+                  textInputAction: TextInputAction.next,
+                ),
+                // SizedBox(
+                //   height: 2.h,
+                // ),
+                Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: CheckboxListTile(
+                    title: const Text('Make as Default Address'),
+                    autofocus: false,
+                    activeColor: ColorAll.colorsPrimary,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    checkColor: Colors.white,
+                    value: isDefault,
+                    onChanged: (value) {
+                      setState(() {
+                        isDefault = value!;
+                      });
+                    },
                   ),
                 ),
-              ),
-            ],
-          ),
-        ));
+                SizedBox(
+                  width: mainWidth / 2.5,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(ColorAll.colorsPrimary)),
+                    onPressed: () async {
+                      if (_addressnameController.text.isNotEmpty &&
+                          _streetController.text.isNotEmpty &&
+                          _areaController.text.isNotEmpty &&
+                          _cityController.text.isNotEmpty &&
+                          _stateController.text.isNotEmpty &&
+                          _countryController.text.isNotEmpty &&
+                          _postalcodeController.text.isNotEmpty &&
+                          _mobilenumberController.text.isNotEmpty) {
+                        if (widget.addressName.isNotEmpty) {
+                          updateAddress();
+                        } else {
+                          addAddress();
+                        }
+                      } else {
+                        UiUtils.showToast('Please enter all Fields');
+                      }
+                    },
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(fontSize: 15.0, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ]),
+            )));
   }
 }

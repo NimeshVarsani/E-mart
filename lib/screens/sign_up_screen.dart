@@ -1,73 +1,22 @@
 import 'dart:async';
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emart/screens/home_screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:emart/main.dart';
-import 'package:emart/screens/login_screen.dart';
-import 'package:emart/screens/verify_email_page.dart';
 import 'package:emart/utils/strings.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-BuildContext? ctxSU;
-var ctxProgressS;
-
-class MySignUpScreen extends StatelessWidget {
-  MySignUpScreen(BuildContext ctxLS1, {Key? key}) : super(key: key){
-    ctxSU = ctxLS1;
-  }
+class MySignUpScreen extends StatefulWidget {
+  const MySignUpScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'Signup screen',
-            home: ProgressHUD(
-              backgroundColor: Colors.white,
-              indicatorColor: ColorAll.colorsPrimary,
-              textStyle: TextStyle(
-                color: ColorAll.colorsPrimary,
-                fontSize: 18.sp,
-              ),
-              child: Builder(
-                builder: (ctxProg) => SignUpScreen(ctxProg),
-              ),
-            ),
-          );
-        }
-        );
-  }
+  State<MySignUpScreen> createState() => _MySignUpScreenState();
 }
 
-
-class SignUpScreen extends StatefulWidget {
-  SignUpScreen(BuildContext ctxProg, {Key? key}) : super(key: key){
-    ctxProgressS = ctxProg;
-  }
-
-  @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-
+class _MySignUpScreenState extends State<MySignUpScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -85,7 +34,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-
   Future<void> addUser(String name, String email, String uid) async {
     var ref = FirebaseDatabase.instance.ref().child('users/$uid');
     await ref.set({
@@ -96,23 +44,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future signUp() async {
-    var progress;
-
-    if (_nameController.text.isNotEmpty && _emailController.text.isNotEmpty &&
-        _passwordController.text.isNotEmpty && _confirmPasswordController.text.isNotEmpty) {
+    if (_nameController.text.isNotEmpty &&
+        _emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty &&
+        _confirmPasswordController.text.isNotEmpty) {
       if (_passwordController.text.toString().trim() ==
           _confirmPasswordController.text.toString().trim()) {
         try {
-
-          Timer(const Duration(milliseconds: 10), () {
-            progress = ProgressHUD.of(ctxProgressS);
-            progress.show();
-            print('started');
-
-            Timer(const Duration(seconds: 15), () {
-              progress.dismiss();
-            });
-          });
+          context.loaderOverlay.show();
 
           //fetching list of email in database
           final list = await FirebaseAuth.instance
@@ -120,80 +59,89 @@ class _SignUpScreenState extends State<SignUpScreen> {
           //checking user typed mail in database
           if (list.isNotEmpty) {
             //email is already in use
-            Util.showSnackBar(context, 'Email is already in use');
-            progress.dismiss();
-          }
-          else {
+            if (mounted) {
+              UiUtils.showSnackBar(context, 'Email is already in use');
+              context.loaderOverlay.hide();
+            }
+          } else {
             //email is not in use so we can create user
-            final newUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            final newUser =
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
             );
 
             var userId = (FirebaseAuth.instance.currentUser?.uid ?? "");
-            addUser(_nameController.text.toString(), _emailController.text.toString(), userId);
+            addUser(_nameController.text.toString(),
+                _emailController.text.toString(), userId);
 
-            progress.dismiss();
             //for verification of user
             if (newUser.user != null) {
-              print("opening verify page print before nav");
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (BuildContext context) => MyHomeScreen(),
-                ),
-                    (route) => false,
-              );
-            }
-            print("opening verify page print after nav");
-          }
+              if (mounted) {
+                context.loaderOverlay.hide();
 
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => const MyHomeScreen(),
+                  ),
+                  (route) => false,
+                );
+              }
+            }
+          }
         } on FirebaseAuthException catch (e) {
           if (kDebugMode) {
             print(e);
           }
           //email is already in use
-          Util.showSnackBarLong(context, 'Invalid Email address or make strong password');
-          progress.dismiss();
+          UiUtils.showSnackBarLong(
+              context, 'Invalid Email address or make strong password');
+          context.loaderOverlay.hide();
         } catch (e) {
           if (kDebugMode) {
             print(e);
           }
         }
-      }else{
-        Util.showSnackBar(context, 'Passwords Mismatched');
+      } else {
+        UiUtils.showSnackBar(context, 'Passwords Mismatched');
       }
     } else {
-      Util.showSnackBar(context, 'please enter all fields');
+      UiUtils.showSnackBar(context, 'please enter all fields');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     var mainWidth = MediaQuery.of(context).size.width;
-    var mainHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: ColorAll.colorsPrimary,
         leading: IconButton(
-          icon: Icon(Icons.chevron_left, color: Colors.white, size: 35,),
+          icon: const Icon(
+            Icons.chevron_left,
+            color: Colors.white,
+            size: 35,
+          ),
           onPressed: () {
-            Navigator.of(ctxSU!).pop();
+            Navigator.of(context).pop();
           },
         ),
       ),
-      body: Container(
-        height: mainHeight,
-        padding: EdgeInsets.only(top: 60, left: 22, right: 22),
-        child: SingleChildScrollView(
-          keyboardDismissBehavior:
-          ScrollViewKeyboardDismissBehavior.onDrag,
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(
+            top: UiUtils.getScreenHeight(context, 0.06),
+            left: 22,
+            right: 22,
+          ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                margin: EdgeInsets.only(bottom: 8),
-                child: Text(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: const Text(
                   'Register',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -203,8 +151,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(bottom: 35),
-                child: Text(
+                margin: const EdgeInsets.only(bottom: 35),
+                child: const Text(
                   'Create your new account',
                   style: TextStyle(
                     fontSize: 20,
@@ -212,7 +160,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
               ),
-
               Container(
                 width: mainWidth,
                 height: 50,
@@ -233,10 +180,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   autofocus: false,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.account_circle ,color: ColorAll.colorsPrimary,),
+                    prefixIcon: Icon(
+                      Icons.account_circle,
+                      color: ColorAll.colorsPrimary,
+                    ),
                     labelText: 'Name',
-                    labelStyle: TextStyle(color: Colors.black54),
-                    contentPadding: const EdgeInsets.only(left: 18.0, bottom: 8.0, top: 8.0),
+                    labelStyle: const TextStyle(color: Colors.black54),
+                    contentPadding: const EdgeInsets.only(
+                        left: 18.0, bottom: 8.0, top: 8.0),
                     fillColor: Colors.grey[100],
                     filled: true,
                     border: OutlineInputBorder(
@@ -244,7 +195,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorAll.colorsPrimary, width: 1),
+                      borderSide:
+                          BorderSide(color: ColorAll.colorsPrimary, width: 1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
@@ -270,10 +222,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   autofocus: false,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email ,color: ColorAll.colorsPrimary,),
+                    prefixIcon: Icon(
+                      Icons.email,
+                      color: ColorAll.colorsPrimary,
+                    ),
                     labelText: 'Email',
-                    labelStyle: TextStyle(color: Colors.black54),
-                    contentPadding: const EdgeInsets.only(left: 18.0, bottom: 8.0, top: 8.0),
+                    labelStyle: const TextStyle(color: Colors.black54),
+                    contentPadding: const EdgeInsets.only(
+                        left: 18.0, bottom: 8.0, top: 8.0),
                     fillColor: Colors.grey[100],
                     filled: true,
                     border: OutlineInputBorder(
@@ -281,7 +237,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorAll.colorsPrimary, width: 1),
+                      borderSide:
+                          BorderSide(color: ColorAll.colorsPrimary, width: 1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
@@ -310,14 +267,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   decoration: InputDecoration(
                     // labelText: 'Password',
                     // labelStyle: TextStyle(color: Colors.black54),
-                    prefixIcon: Icon(Icons.lock ,color: ColorAll.colorsPrimary,),
+                    prefixIcon: Icon(
+                      Icons.lock,
+                      color: ColorAll.colorsPrimary,
+                    ),
                     hintText: 'Password',
-                    hintStyle : TextStyle(color: Colors.black54),
-                    contentPadding: const EdgeInsets.only(left: 18.0, bottom: 8.0, top: 8.0),
+                    hintStyle: const TextStyle(color: Colors.black54),
+                    contentPadding: const EdgeInsets.only(
+                        left: 18.0, bottom: 8.0, top: 8.0),
                     fillColor: Colors.grey[100],
                     filled: true,
                     suffixIcon: IconButton(
-                      icon: _passwordVisible ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+                      icon: _passwordVisible
+                          ? const Icon(Icons.visibility)
+                          : const Icon(Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _passwordVisible = !_passwordVisible;
@@ -329,7 +292,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorAll.colorsPrimary, width: 1),
+                      borderSide:
+                          BorderSide(color: ColorAll.colorsPrimary, width: 1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
@@ -358,14 +322,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   decoration: InputDecoration(
                     // labelText: 'Password',
                     // labelStyle: TextStyle(color: Colors.black54),
-                    prefixIcon: Icon(Icons.lock ,color: ColorAll.colorsPrimary,),
+                    prefixIcon: Icon(
+                      Icons.lock,
+                      color: ColorAll.colorsPrimary,
+                    ),
                     hintText: 'Confirm Password',
-                    hintStyle : TextStyle(color: Colors.black54),
-                    contentPadding: const EdgeInsets.only(left: 18.0, bottom: 8.0, top: 8.0),
+                    hintStyle: const TextStyle(color: Colors.black54),
+                    contentPadding: const EdgeInsets.only(
+                        left: 18.0, bottom: 8.0, top: 8.0),
                     fillColor: Colors.grey[100],
                     filled: true,
                     suffixIcon: IconButton(
-                      icon: _confirmPasswordVisible ? Icon(Icons.visibility) : Icon(Icons.visibility_off),
+                      icon: _confirmPasswordVisible
+                          ? const Icon(Icons.visibility)
+                          : const Icon(Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _confirmPasswordVisible = !_confirmPasswordVisible;
@@ -377,13 +347,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: ColorAll.colorsPrimary, width: 1),
+                      borderSide:
+                          BorderSide(color: ColorAll.colorsPrimary, width: 1),
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                 ),
               ),
-
               Container(
                 margin: const EdgeInsets.only(
                   top: 80,
@@ -396,12 +366,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton(
                   style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(ColorAll.colorsPrimary),
+                      backgroundColor:
+                          MaterialStateProperty.all(ColorAll.colorsPrimary),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                            // side: BorderSide(color: Colors.black)
-                          ))),
+                        borderRadius: BorderRadius.circular(20.0),
+                        // side: BorderSide(color: Colors.black)
+                      ))),
                   onPressed: () {
                     // _nameController.text = 'Nimesh';
                     // _emailController.text = 'nimeshvarsani7@gmail.com';
@@ -425,24 +396,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   Text(
+                  Text(
                     'Already have an account? ',
-                    style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16.0
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16.0),
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(ctxSU!).pop();
+                      Navigator.of(context).pop();
                     },
                     child: Text(
                       'Login In',
                       style: TextStyle(
                           decoration: TextDecoration.underline,
                           color: ColorAll.colorsPrimary,
-                          fontSize: 16.0
-                      ),
+                          fontSize: 16.0),
                     ),
                   ),
                 ],
@@ -453,5 +420,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-
 }

@@ -6,60 +6,21 @@ import 'package:emart/screens/navigations_screens/cart/cart.dart';
 import 'package:emart/screens/navigations_screens/categories.dart';
 import 'package:emart/screens/navigations_screens/home/home.dart';
 import 'package:emart/screens/navigations_screens/notifications.dart';
+import 'package:emart/utils/app_icons.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-// BuildContext? ctxHS;
-var ctxProgressHS;
+// var bottomWidgetKey = GlobalKey<State<BottomNavigationBar>>();
 
-var bottomWidgetKey = GlobalKey<State<BottomNavigationBar>>();
-
-class MyHomeScreen extends StatelessWidget {
-  MyHomeScreen({Key? key}) : super(key: key);
+class MyHomeScreen extends StatefulWidget {
+  const MyHomeScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'home screen',
-            home: ProgressHUD(
-              backgroundColor: Colors.white,
-              indicatorColor: ColorAll.colorsPrimary,
-              textStyle: TextStyle(
-                color: ColorAll.colorsPrimary,
-                fontSize: 18.sp,
-              ),
-              child: Builder(
-                builder: (ctxProg) => HomeScreen(ctxProg),
-              ),
-            ),
-          );
-        });
-  }
+  State<MyHomeScreen> createState() => _MyHomeScreenState();
 }
 
-class HomeScreen extends StatefulWidget {
-  HomeScreen(BuildContext ctxProg, {Key? key}) : super(key: key) {
-    ctxProgressHS = ctxProg;
-  }
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
+class _MyHomeScreenState extends State<MyHomeScreen> {
   int _selectedIndex = 0;
   String userId = "";
 
@@ -78,11 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   static final _children = [
-    MyHome(),
-    Categories(),
-    Notifications(),
-    Cart(),
-    MyAccount(),
+    const MyHome(),
+    const Categories(),
+    const Notifications(),
+    const Cart(),
+    const MyAccount(),
   ];
 
   @override
@@ -91,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _navigationQueue.add(0);
 
     userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-
   }
 
   ListQueue<int> _navigationQueue = ListQueue();
@@ -107,52 +67,33 @@ class _HomeScreenState extends State<HomeScreen> {
         //   backgroundColor: ColorAll.colorsPrimary,
         // ),
         bottomNavigationBar: BottomNavigationBar(
-          key: bottomWidgetKey,
+          // key: bottomWidgetKey,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/icons/home_outlined.png'),
-                color: Colors.black,
-                size: 22,
-              ),
+              icon: UiUtils.getAssetImage(AppIcons.home_outlined, height: 30, width: 30, color: Colors.black),
               label: 'Home',
-              activeIcon: ImageIcon(AssetImage('assets/icons/home_filled.png'),
-                  color: ColorAll.colorsPrimary, size: 22),
+              activeIcon: UiUtils.getAssetImage(AppIcons.home_filled, height: 30, width: 30, color: ColorAll.colorsPrimary),
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/icons/categories_outline.png'),
-                  color: Colors.black, size: 24),
+              icon: UiUtils.getAssetImage(AppIcons.categories_outline, height: 30, width: 30, color: Colors.black),
               label: 'Categories',
-              activeIcon: ImageIcon(
-                  AssetImage('assets/icons/categories_fill.png'),
-                  color: ColorAll.colorsPrimary,
-                  size: 26),
+              activeIcon: UiUtils.getAssetImage(AppIcons.categories_fill, height: 30, width: 30, color: ColorAll.colorsPrimary),
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/icons/bell_outline.png'),
-                  color: Colors.black, size: 22),
+              icon: UiUtils.getAssetImage(AppIcons.bell_outline, height: 30, width: 30, color: Colors.black),
               label: 'Notify',
-              activeIcon: ImageIcon(AssetImage('assets/icons/bell_fill.png'),
-                  color: ColorAll.colorsPrimary, size: 22),
+              activeIcon: UiUtils.getAssetImage(AppIcons.bell_fill, height: 30, width: 30, color: ColorAll.colorsPrimary),
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/icons/trolley_outlined.png'),
-                  color: Colors.black, size: 28),
+              icon: UiUtils.getAssetImage(AppIcons.trolley_outlined, height: 30, width: 30, color: Colors.black),
               label: 'Cart',
-              activeIcon: ImageIcon(
-                  AssetImage('assets/icons/trolley_filled.png'),
-                  color: ColorAll.colorsPrimary,
-                  size: 28),
+              activeIcon: UiUtils.getAssetImage(AppIcons.trolley_filled, height: 30, width: 30, color: ColorAll.colorsPrimary),
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/icons/user_outlined.png'),
-                  color: Colors.black),
+              icon: UiUtils.getAssetImage(AppIcons.user_outlined, height: 30, width: 30, color: Colors.black),
               // icon: Icon(Icons.account_circle_outlined, color: Colors.black),
               label: 'Account',
-              activeIcon: ImageIcon(
-                AssetImage('assets/icons/user_filled.png'),
-                color: ColorAll.colorsPrimary,
-              ),
+              activeIcon: UiUtils.getAssetImage(AppIcons.user_filled, height: 30, width: 30, color: ColorAll.colorsPrimary),
             ),
           ],
           backgroundColor: Colors.white,

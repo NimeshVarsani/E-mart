@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -10,18 +11,8 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
 
 class AuthService {
-  var progress;
 
-  Future<User?> signInWithGoogle(var ctxProgressL) async {
-
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressL);
-      progress.show();
-
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+  Future<User?> signInWithGoogle() async {
 
     User? user;
 
@@ -56,19 +47,15 @@ class AuthService {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
-        Util.showToast(
+        UiUtils.showToast(
             'The account already exists with a different credential.');
       } else if (e.code == 'invalid-credential') {
-        Util.showToast(
+        UiUtils.showToast(
             'Error occurred while accessing credentials. Try again.');
       }
     } catch (e) {
-      Util.showToast('Error occurred using Google Sign-In. Try again.');
+      UiUtils.showToast('Error occurred using Google Sign-In. Try again.');
     }
-
-    Timer(const Duration(milliseconds: 20), () {
-      progress.dismiss();
-    });
 
     return user;
   }
@@ -76,6 +63,6 @@ class AuthService {
   signOut() async {
     await FirebaseAuth.instance.signOut();
     await _googleSignIn.signOut();
-    Util.showToast('Logged Out Successfully');
+    UiUtils.showToast('Logged Out Successfully');
   }
 }

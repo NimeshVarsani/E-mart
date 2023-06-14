@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:emart/main.dart';
 import 'package:emart/screens/navigations_screens/account/add_address.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:emart/widgets/noDataFound.dart';
 import 'package:emart/widgets/shimmerLoadingContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -159,7 +159,7 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
     });
 
     dbRef.child(addressName).remove();
-    Util.showToast('Address Deleted');
+    UiUtils.showToast('Address Deleted');
     _getAddress();
 
     Timer(const Duration(milliseconds: 20), () {

@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:emart/screens/home_screen.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:emart/main.dart';
 import 'package:emart/models/products.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +117,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
       progress.dismiss();
     });
 
-    Util.showToast('Added to cart');
+    UiUtils.showToast('Added to cart');
   }
 
   productDetailData() async {

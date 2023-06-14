@@ -1,65 +1,22 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:emart/main.dart';
-import 'package:emart/screens/home_screen.dart';
-import 'package:emart/utils/utils.dart';
-import 'package:emart/widgets/noDataFound.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:emart/widgets/shimmerLoadingContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
 
-var ctxProgressCS;
-
-class Cart extends StatelessWidget {
-  Cart({Key? key}) : super(key: key);
+class Cart extends StatefulWidget {
+  const Cart({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return ProgressHUD(
-              backgroundColor: Colors.white,
-              indicatorColor: ColorAll.colorsPrimary,
-              textStyle: TextStyle(
-                color: ColorAll.colorsPrimary,
-                fontSize: 18.sp,
-              ),
-              child: Builder(
-                builder: (ctxProg) => MyCart(ctxProg),
-              ),
-            );
-        });
-  }
+  State<Cart> createState() => _CartState();
 }
 
-class MyCart extends StatefulWidget {
-  MyCart(BuildContext ctxProg, {Key? key}) : super(key: key) {
-    ctxProgressCS = ctxProg;
-  }
+class _CartState extends State<Cart> {
 
-  @override
-  State<MyCart> createState() => _MyCartState();
-}
-
-class _MyCartState extends State<MyCart> {
-  var progress;
   bool isCartLoaded = false;
   List cartList = [];
-
 
   int _quantity = 0;
 
@@ -113,7 +70,7 @@ class _MyCartState extends State<MyCart> {
                   Navigator.pop(context);
                   _dbRef.child(pId).remove();
                   _getCartData();
-                  Util.showToast('Product Removed');
+                  UiUtils.showToast('Product Removed');
 
                 },
                 child: const Text('Yes'),
@@ -139,7 +96,7 @@ class _MyCartState extends State<MyCart> {
                 borderRadius: BorderRadius.circular(18),
                 child: Container(
                   width: double.infinity,
-                  child: Row(
+                  child: const Row(
                     children: [
                       CustomShimmer(height: 100, width: 100,),
                       Expanded(
@@ -332,17 +289,17 @@ class _MyCartState extends State<MyCart> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        padding: EdgeInsets.only(top: 28),
+        padding: const EdgeInsets.only(top: 28),
         child: Column(
           children: [
             AppBar(
-              title: Text('Cart'),
+              title: const Text('Cart'),
               backgroundColor: ColorAll.colorsPrimary,
             ),
             Expanded(
               child: FirebaseAnimatedList(
                 defaultChild: buildCartShimmer(),
-                  padding: EdgeInsets.only(top: 5,bottom: 33, left: 4, right: 4),
+                  padding: const EdgeInsets.only(top: 5,bottom: 33, left: 4, right: 4),
                   query: _dbRef,
                   itemBuilder: (context, snapshot, animation, index) {
                       return Card(
@@ -351,15 +308,15 @@ class _MyCartState extends State<MyCart> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Container(
-                          padding: EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(3),
                           child: Row(
                             children: [
                               Container(
                                 width: 100,
                                 height: 100.0,
-                                margin: EdgeInsets.only(right: 10),
+                                margin: const EdgeInsets.only(right: 10),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(8.0),
+                                  borderRadius: const BorderRadius.all(Radius.circular(8.0),
                                   ),
                                   image: DecorationImage(
                                     image: NetworkImage(
@@ -376,20 +333,20 @@ class _MyCartState extends State<MyCart> {
                                   children: [
                                     Text(
                                       snapshot.child('title').value.toString(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 5,
                                     ),
                                     Text(
                                       '\$${snapshot.child('price').value.toString()}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w500),
                                     ),
-                                    SizedBox(
+                                    const SizedBox(
                                       height: 5,
                                     ),
                                     /*Row(
@@ -420,12 +377,12 @@ class _MyCartState extends State<MyCart> {
                                   onPressed: (){
                                     _showCartDelDialog(snapshot.child('productId').value.toString());
                                   },
-                                  icon: Icon(Icons.delete)),
+                                  icon: const Icon(Icons.delete)),
                             ],
                           ),
                         ),
                       );
-                    Center(
+                    /* Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -472,7 +429,7 @@ class _MyCartState extends State<MyCart> {
                           ),
                         ],
                       ),
-                    );
+                    ); */
                   }),
             ),
           ],

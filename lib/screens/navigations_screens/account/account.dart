@@ -1,76 +1,30 @@
-import 'dart:async';
-
 import 'package:emart/auth_service.dart';
 import 'package:emart/screens/navigations_screens/account/address.dart';
 import 'package:emart/screens/navigations_screens/account/orders.dart';
 import 'package:emart/main.dart';
 import 'package:emart/screens/login_screen.dart';
-import 'package:emart/utils/utils.dart';
+import 'package:emart/utils/app_icons.dart';
+import 'package:emart/utils/ui_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-// BuildContext? ctxAS;
-var ctxProgressAS;
-
-class MyAccount extends StatelessWidget {
-  MyAccount({Key? key}) : super(key: key);
+class MyAccount extends StatefulWidget {
+  const MyAccount({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return ProgressHUD(
-            backgroundColor: Colors.white,
-            indicatorColor: ColorAll.colorsPrimary,
-            textStyle: TextStyle(
-              color: ColorAll.colorsPrimary,
-              fontSize: 18.sp,
-            ),
-            child: Builder(
-              builder: (ctxProg) => Account(ctxProg),
-            ),
-          );
-        });
-  }
+  State<MyAccount> createState() => _MyAccountState();
 }
 
-class Account extends StatefulWidget {
-  Account(BuildContext ctxProg, {Key? key}) : super(key: key) {
-    ctxProgressAS = ctxProg;
-  }
-
-  @override
-  State<Account> createState() => _AccountState();
-}
-
-class _AccountState extends State<Account> with TickerProviderStateMixin {
-  var progress;
-
+class _MyAccountState extends State<MyAccount> with TickerProviderStateMixin {
   String email = "";
   String name = "";
   String role = "";
 
   getUserData(String uid) async {
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressAS);
-      progress.show();
-
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+    context.loaderOverlay.show();
 
     try {
       final ref = FirebaseDatabase.instance.ref();
@@ -92,12 +46,12 @@ class _AccountState extends State<Account> with TickerProviderStateMixin {
           // _isLoading = false;
         }
       });
-      Timer(const Duration(milliseconds: 20), () {
-        progress.dismiss();
-      });
+      context.loaderOverlay.hide();
     } catch (e) {
       return 'Error fetching user';
     }
+
+    // context.loaderOverlay.hide();
   }
 
   @override
@@ -113,267 +67,179 @@ class _AccountState extends State<Account> with TickerProviderStateMixin {
   signOut(BuildContext context) {
     AuthService().signOut();
 
-    try {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MyLoginPage(),
-        ),
-        (route) => false,
-      );
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  showLogoutDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            insetPadding: const EdgeInsets.all(20),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-            ),
-            title: _headerWidget(),
-            actions: [
-              _yesButtonWidget(context),
-              _cancelButtonWidget(context),
-            ],
-            /*child: Container(
-              padding: const EdgeInsets.symmetric(
-                vertical: 20,
-                horizontal: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _headerWidget(),
-                  const SizedBox(height: 20),
-                  _yesButtonWidget(),
-                  _cancelButtonWidget(context),
-                ],
-              ),
-            ),*/
-          );
-        });
-  }
-
-  Text _headerWidget() {
-    return const Text(
-      "You sure you want to log out?",
-      style: TextStyle(
-        fontSize: 21,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const MyLoginPage(),
       ),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  SizedBox _yesButtonWidget(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () {
-          signOut(context);
-        },
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(
-            vertical: 15,
-          ),
-          shape: const StadiumBorder(),
-        ),
-        child: const Text(
-          "Yes I'm sure",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container _cancelButtonWidget(BuildContext context) {
-    return Container(
-      // width: double.maxFinite,
-      alignment: Alignment.center,
-      margin: const EdgeInsets.only(top: 10),
-      child: TextButton(
-        onPressed: () => Navigator.of(context).pop(),
-        style: TextButton.styleFrom(
-          visualDensity: VisualDensity.compact,
-        ),
-        child: const Text(
-          "Cancel",
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 12,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+      (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     return Scaffold(
-      body: Container(
-        margin: EdgeInsets.only(top: 28, bottom: 20),
-        padding: EdgeInsets.only(bottom: 10),
-        child: CustomScrollView(
-          slivers: [
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return Column(
-                    children: [
-                      AppBar(
-                        title: Text('Account'),
-                        backgroundColor: ColorAll.colorsPrimary,
-                      ),
-                      Container(
-                        color: Colors.blueGrey[50],
-                        child: Stack(
-                          children: [
-                            Visibility(
-                              visible: (role == 'admin'),
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: Container(
-                                  padding: EdgeInsets.only(
-                                    right: 8,
-                                    top: 8,
+      body: CustomScrollView(
+        slivers: [
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return Column(
+                  children: [
+                    AppBar(
+                      title: Text('Account'),
+                      backgroundColor: ColorAll.colorsPrimary,
+                    ),
+                    Container(
+                      color: Colors.blueGrey[50],
+                      child: Stack(
+                        children: [
+                          Visibility(
+                            visible: (role == 'admin'),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                  right: 8,
+                                  top: 8,
+                                ),
+                                child: const Text(
+                                  'Admin',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  child: Text(
-                                    'Admin',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: 50.0,
+                                  // foregroundImage: UiUtils.getAssetImage(AppIcons.profile_user),
+                                  child: Container(
+                                      child: UiUtils.getAssetImage(
+                                          AppIcons.profile_user)),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    (name.isNotEmpty)
+                                        ? Text(name,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16))
+                                        : const Text('User Name'),
+                                    const SizedBox(
+                                      height: 10.0,
                                     ),
-                                  ),
+                                    (email.isNotEmpty)
+                                        ? Text(email)
+                                        : const Text('User Email'),
+                                  ],
                                 ),
                               ),
-                            ),
-                            Row(
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.all(12.0),
-                                  child: CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    radius: 50.0,
-                                    foregroundImage: AssetImage(
-                                      'assets/icons/profile-user.png',
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10.0,
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      (name.isNotEmpty)
-                                          ? Text(name,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16))
-                                          : Text('User Name'),
-                                      SizedBox(
-                                        height: 10.0,
-                                      ),
-                                      (email.isNotEmpty)
-                                          ? Text(email)
-                                          : Text('User Email'),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10.0,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Util().makeCardWithTap(context, 'Orders', () {
-                        Navigator.of(context, rootNavigator: true).push(
-                            MaterialPageRoute(
-                                builder: (context) => Orders_screen()));
-                      }),
-                      Util().makeCard('Customer Care'),
-                      Util().makeCard('Invite Friends & Earn'),
-                      Util().makeCard('Game Zone'),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Util().makeCard('Wallet'),
-                      Util().makeCard('Saved Cards'),
-                      Util().makeCard('My Rewards'),
-                      Util().makeCardWithTap(context, 'Address', () {
-                        Navigator.of(context, rootNavigator: true).push(
-                            MaterialPageRoute(
-                                builder: (context) => AddressScreen(context)));
-                      }),
-                      Util().makeCard('Wishlist'),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Util().makeCard('How To Return'),
-                      Util().makeCard('Terms & Conditions'),
-                      Util().makeCard('Returns & Refunds Policy'),
-                      Util().makeCard('We Respect Your Privacy'),
-                      Util().makeCard('Fees & Payments'),
-                      Util().makeCard('Who We Are'),
-                      Util().makeCard('Join Our Team'),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                        ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              showLogoutDialog(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 15,
+                              const SizedBox(
+                                width: 10.0,
                               ),
-                              backgroundColor: Colors.white,
-                              shape: const StadiumBorder(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    UiUtils().makeCardWithTap(context, 'Orders', () {
+                      Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(
+                              builder: (context) => Orders_screen()));
+                    }),
+                    UiUtils().makeCard('Customer Care'),
+                    UiUtils().makeCard('Invite Friends & Earn'),
+                    UiUtils().makeCard('Game Zone'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    UiUtils().makeCard('Wallet'),
+                    UiUtils().makeCard('Saved Cards'),
+                    UiUtils().makeCard('My Rewards'),
+                    UiUtils().makeCardWithTap(context, 'Address', () {
+                      Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(
+                              builder: (context) => AddressScreen(context)));
+                    }),
+                    UiUtils().makeCard('Wishlist'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    UiUtils().makeCard('How To Return'),
+                    UiUtils().makeCard('Terms & Conditions'),
+                    UiUtils().makeCard('Returns & Refunds Policy'),
+                    UiUtils().makeCard('We Respect Your Privacy'),
+                    UiUtils().makeCard('Fees & Payments'),
+                    UiUtils().makeCard('Who We Are'),
+                    UiUtils().makeCard('Join Our Team'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            UiUtils.showCustomDialog(
+                                context: context,
+                                title: "You sure you want to log out?",
+                                yesButtonText: "Yes I'm sure",
+                                cancelButtonText: "Cancel",
+                                signOut: () {
+                                  signOut(context);
+                                });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 15,
                             ),
-                            child: const Text(
-                              "Logout",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 18,
-                                letterSpacing: 0.5,
-                              ),
+                            backgroundColor: Colors.white,
+                            shape: const StadiumBorder(),
+                          ),
+                          child: const Text(
+                            "Logout",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                    ],
-                  );
-                },
-                childCount: 1,
-              ), //SliverChildB,
-            ),
-          ],
-        ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                  ],
+                );
+              },
+              childCount: 1,
+            ), //SliverChildB,
+          ),
+        ],
       ),
     );
   }
