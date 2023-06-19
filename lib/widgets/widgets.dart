@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TextFieldWidget extends StatelessWidget {
   String text;
@@ -30,18 +27,18 @@ class TextFieldWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.only(left: 5),
+          padding: const EdgeInsets.only(left: 5),
           child: Text(
             text,
-            style: TextStyle(fontSize: 16.0, color: Colors.black),
+            style: const TextStyle(fontSize: 16.0, color: Colors.black),
           ),
         ),
         SizedBox(
-          height: 4.h,
+          height: 4,
         ),
         Container(
           height: containerHeight,
-          padding: EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration:
           BoxDecoration(
             color: Colors.white,
@@ -52,7 +49,7 @@ class TextFieldWidget extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 2.w),
+            padding: EdgeInsets.symmetric(horizontal: 2),
             child: TextField(
               keyboardType: keyBoardType,
               controller: controller,
@@ -68,7 +65,7 @@ class TextFieldWidget extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 12.h,
+          height: 12,
         ),
       ],
     );
@@ -78,10 +75,10 @@ class TextFieldWidget extends StatelessWidget {
 
 Widget labelName(String label){
   return Container(
-    padding: EdgeInsets.only(left: 5),
+    padding: const EdgeInsets.only(left: 5),
     child: Text(
       label,
-      style: TextStyle(fontSize: 16.0, color: Colors.black),
+      style: const TextStyle(fontSize: 16.0, color: Colors.black),
     ),
   );
 }

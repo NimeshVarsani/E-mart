@@ -60,7 +60,7 @@ class _MyHomeState extends State<MyHome> {
           print('unfocus=-=-=>');
           FocusScope.of(context).unfocus();
         }
-        print('_keyboardVisible=-=>' + _keyboardVisible.toString());
+        print('_keyboardVisible=-=>$_keyboardVisible');
       });
     });
 
@@ -129,16 +129,16 @@ class _MyHomeState extends State<MyHome> {
           searchProductsList = filteredList;
         });
       }
-      print('filteredList.toString()' + productsList.toString());
+      print('filteredList.toString()$productsList');
     });
   }
 
   searchDir(String cType) {
-    print(cType + "<===--->");
+    print("$cType<===--->");
     if (cType.trim().isNotEmpty) {
       // productsList.clear();
       productsList = [];
-      searchProductsList.forEach((list) {
+      for (var list in searchProductsList) {
         setState(() {
           String brand = list['brand'];
           String categories = list['category'];
@@ -150,11 +150,11 @@ class _MyHomeState extends State<MyHome> {
           }
         });
         // dummyListData.add(CandidatesData());
-      });
-      print(cType + "%%%%%%%<===--->" + (productsList.length.toString()));
+      }
+      print("$cType%%%%%%%<===--->${productsList.length}");
     } else {
       setState(() {
-        print("length--->" + (productsList.length.toString()));
+        print("length--->${productsList.length}");
         productsList.clear();
         productsList.addAll(searchProductsList);
       });
@@ -174,7 +174,7 @@ class _MyHomeState extends State<MyHome> {
               child: ClipRRect(
                 clipBehavior: Clip.antiAlias,
                 borderRadius: BorderRadius.circular(18),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height * 0.40,
                   child: Column(
@@ -602,7 +602,7 @@ class _MyHomeState extends State<MyHome> {
                                               height: 4,
                                             ),
                                             Text(
-                                              '${productsList[index]['discountPercentage'].toString()}\% off',
+                                              '${productsList[index]['discountPercentage'].toString()}% off',
                                               style: const TextStyle(
                                                 fontSize: 14.0,
                                                 color: Colors.green,

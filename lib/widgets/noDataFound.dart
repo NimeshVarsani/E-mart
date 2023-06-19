@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
   Widget noDataFound(BuildContext context) {
-    return Center(
+    return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

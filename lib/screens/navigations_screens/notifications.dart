@@ -1,4 +1,3 @@
-import 'package:emart/main.dart';
 import 'package:flutter/material.dart';
 
 class Notifications extends StatelessWidget {

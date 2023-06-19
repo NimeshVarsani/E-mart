@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:emart/main.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_progress_hud/flutter_progress_hud.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
 
 BuildContext? ctxPD;
 var ctxProgressPD;
@@ -139,7 +137,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
       final data = Map<String, dynamic>.from(
         event.snapshot.value as Map,
       );
-      print('data=-=' + data.toString());
+      print('data=-=$data');
 
       setState(() {
         productRating = data['rating'];
@@ -157,9 +155,9 @@ class _MyProductDetailsState extends State<MyProductDetails> {
 
 
       print('title=-=' + data['title']);
-      print('price=-=' + data['price'].toString());
+      print('price=-=${data['price']}');
       print('description=-=' + data['description']);
-      print('images=-=' + data['images'].toString());
+      print('images=-=${data['images']}');
     }
 
     Timer(const Duration(milliseconds: 20), () {
@@ -237,7 +235,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
             },
             icon: const Icon(Icons.arrow_back_ios),
           ),
-          title: Text(
+          title: const Text(
             "PRODUCT DETAILS",
             style: TextStyle(
               fontSize: 18.0,
@@ -284,12 +282,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                       aspectRatio: 16 / 9,
                       autoPlayCurve: Curves.fastOutSlowIn,
                       enableInfiniteScroll: true,
-                      autoPlayAnimationDuration: Duration(milliseconds: 800),
+                      autoPlayAnimationDuration: const Duration(milliseconds: 800),
                       viewportFraction: 0.8,
                       onPageChanged: (index, reason) {
                         setState(() {
                           _current = index;
-                          print("${_current}");
+                          print("$_current");
                         });
                       }),
                 ),
@@ -303,12 +301,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                       width: 8.0,
                       height: 8.0,
                       margin:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                      const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: _current == index
-                              ? Color.fromRGBO(0, 0, 0, 0.9)
-                              : Color.fromRGBO(0, 0, 0, 0.4)),
+                              ? const Color.fromRGBO(0, 0, 0, 0.9)
+                              : const Color.fromRGBO(0, 0, 0, 0.4)),
                     );
                   },
                 ).toList(), // this was the part the I had to add
@@ -320,12 +318,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                   children: [
                     Text(
                       productTitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       productDescription,
                       style: TextStyle(
@@ -334,10 +332,10 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                       ),
                     ),
 
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     RatingBarIndicator(
                       rating: productRating,
-                      itemBuilder: (context, index) => Icon(
+                      itemBuilder: (context, index) => const Icon(
                         Icons.star,
                         color: Colors.amber,
                       ),
@@ -346,7 +344,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                       direction: Axis.horizontal,
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -354,12 +352,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                           children: [
                             Text(
                               '\$$productPrice',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               '\$$productPriceSub',
                               style: TextStyle(
@@ -369,10 +367,10 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                                 decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
-                              '$productDiscount\% off',
-                              style: TextStyle(
+                              '$productDiscount% off',
+                              style: const TextStyle(
                                 fontSize: 20,
                                 color: Colors.green,
                                 fontWeight: FontWeight.w600,
@@ -386,18 +384,18 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                               onPressed: _quantity > 1
                                   ? () => setState(() => _quantity--)
                                   : null,
-                              icon: Icon(Icons.remove),
+                              icon: const Icon(Icons.remove),
                             ),
                             Text(
                               '$_quantity',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             IconButton(
                               onPressed: () => setState(() => _quantity++),
-                              icon: Icon(Icons.add),
+                              icon: const Icon(Icons.add),
                             ),
                           ],
                         ),
@@ -410,7 +408,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                         color: Colors.grey[700],
                       ),
                     ),
-                    SizedBox(height: 32),
+                    const SizedBox(height: 32),
                     Center(
                       child: SizedBox(
                         width: mainWidth / 1.8,
@@ -421,12 +419,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 13,
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Buy',
                             style: TextStyle(
                               color: Colors.white,
@@ -437,7 +435,7 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
                     Center(
                       child: SizedBox(
                         width: mainWidth / 1.8,
@@ -451,12 +449,12 @@ class _MyProductDetailsState extends State<MyProductDetails> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 13,
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Add to Cart',
                             style: TextStyle(
                               color: Colors.white,

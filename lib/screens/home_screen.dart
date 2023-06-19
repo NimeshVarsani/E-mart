@@ -30,12 +30,12 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     }
     if (index != _selectedIndex) {
       _navigationQueue.addLast(index);
-      print('last element when added in navQ' + index.toString());
+      print('last element when added in navQ$index');
       setState(() {
         _selectedIndex = index;
       });
     }
-    print('nav list' + _navigationQueue.toString());
+    print('nav list$_navigationQueue');
   }
 
   static final _children = [
@@ -54,7 +54,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     userId = FirebaseAuth.instance.currentUser?.uid ?? "";
   }
 
-  ListQueue<int> _navigationQueue = ListQueue();
+  final ListQueue<int> _navigationQueue = ListQueue();
 
   @override
   Widget build(BuildContext context) {
@@ -141,11 +141,11 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     setState(() {
       _navigationQueue.removeLast();
       _selectedIndex = _navigationQueue.last;
-      print('selIndex' + _selectedIndex.toString());
+      print('selIndex$_selectedIndex');
       shouldPop == false;
     });
 
-    print('nav list' + _navigationQueue.toString());
+    print('nav list$_navigationQueue');
 
     return shouldPop!;
   }

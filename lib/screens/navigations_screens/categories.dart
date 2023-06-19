@@ -1,4 +1,3 @@
-import 'package:emart/main.dart';
 import 'package:flutter/material.dart';
 
 class Categories extends StatelessWidget {
@@ -6,8 +5,8 @@ class Categories extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const SafeArea(
+    return const Scaffold(
+      body: SafeArea(
         child: Center(
           child: Text('All Categories are shown here'),
         ),

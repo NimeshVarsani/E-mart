@@ -18,6 +18,7 @@ class AppIcons {
   static String user_outlined = _pngPath("user_outlined");
   static String user_filled = _pngPath("user_filled");
   static String profile_user = _pngPath("profile_user");
+  static String no_data_found = _jpgPath("no_data_found");
 
   static String _pngPath(String name) {
     return "$_basePathPng$name.png";

@@ -15,7 +15,7 @@ class CustomShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Color.fromARGB(255, 225, 225, 225),
+      baseColor: const Color.fromARGB(255, 225, 225, 225),
       highlightColor: Colors.grey.shade100,
       child: Container(
         width: width,

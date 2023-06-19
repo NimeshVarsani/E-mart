@@ -17,22 +17,22 @@ class _Orders_screenState extends State<Orders_screen> {
       backgroundColor: Colors.blueGrey[50],
       appBar: AppBar(
         backgroundColor: ColorAll.colorsPrimary,
-        title: Text('Orders'),
+        title: const Text('Orders'),
         leading: IconButton(
-          icon: Icon(Icons.chevron_left, color: Colors.white, size: 35,),
+          icon: const Icon(Icons.chevron_left, color: Colors.white, size: 35,),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
       ),
       body: Container(
-        margin: EdgeInsets.only(top: 20),
+        margin: const EdgeInsets.only(top: 20),
         height: 100,
-        padding: EdgeInsets.only(left: 14, right: 14),
+        padding: const EdgeInsets.only(left: 14, right: 14),
         child: Card(
           // color: Colors.green,
           shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(15.0),),
-          margin: EdgeInsets.symmetric(vertical: 0.8),
+          margin: const EdgeInsets.symmetric(vertical: 0.8),
           elevation: 0,
           child: Center(
             child: ListTile(
@@ -45,9 +45,9 @@ class _Orders_screenState extends State<Orders_screen> {
                   child: Image.asset('assets/images/electronic.png', scale: 1,),
                 ),
               ),
-              title: Text('Delivered'),
-              subtitle: Text('Delivered on 19 june'),
-              trailing: ImageIcon(
+              title: const Text('Delivered'),
+              subtitle: const Text('Delivered on 19 june'),
+              trailing: const ImageIcon(
                 AssetImage(
                   'assets/icons/right.png',
                 ),

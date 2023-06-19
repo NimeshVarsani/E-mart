@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -63,7 +62,7 @@ class UiUtils {
           ),
           child: Text(
             yesButtonText,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 14,
               letterSpacing: 0.5,
@@ -87,7 +86,7 @@ class UiUtils {
         ),
         child: Text(
           cancelButtonText,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.red,
             fontSize: 12,
             letterSpacing: 0.5,
@@ -132,7 +131,7 @@ class UiUtils {
 
   static void showToastLong(String string) {
     Fluttertoast.showToast(
-        msg: "$string",
+        msg: string,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
@@ -144,7 +143,7 @@ class UiUtils {
   static void showSnackBar(BuildContext context, String message) {
     var snackBar = SnackBar(
       content: Text(message),
-      duration: Duration(seconds: 5),
+      duration: const Duration(seconds: 5),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -152,21 +151,21 @@ class UiUtils {
   static void showSnackBarLong(BuildContext context, String message) {
     var snackBar = SnackBar(
       content: Text(message),
-      duration: Duration(seconds: 8),
+      duration: const Duration(seconds: 8),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Widget makeCard(String title) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 0.8),
+      margin: const EdgeInsets.symmetric(vertical: 0.8),
       elevation: 0,
       child: ListTile(
         title: Text(
           title,
-          style: TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 13),
         ),
-        trailing: ImageIcon(
+        trailing: const ImageIcon(
           AssetImage(
             'assets/icons/right.png',
           ),
@@ -180,15 +179,15 @@ class UiUtils {
   Widget makeCardWithTap(
       BuildContext context, String title, VoidCallback onTap) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 0.8),
+      margin: const EdgeInsets.symmetric(vertical: 0.8),
       elevation: 0,
       child: ListTile(
         onTap: onTap,
         title: Text(
           title,
-          style: TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 13),
         ),
-        trailing: ImageIcon(
+        trailing: const ImageIcon(
           AssetImage(
             'assets/icons/right.png',
           ),
@@ -202,10 +201,10 @@ class UiUtils {
   Widget labelName(String label) {
     return Container(
       alignment: Alignment.centerLeft,
-      padding: EdgeInsets.only(left: 5, bottom: 6),
+      padding: const EdgeInsets.only(left: 5, bottom: 6),
       child: Text(
         label,
-        style: TextStyle(fontSize: 16.0, color: Colors.black),
+        style: const TextStyle(fontSize: 16.0, color: Colors.black),
       ),
     );
   }

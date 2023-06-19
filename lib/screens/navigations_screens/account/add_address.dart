@@ -6,63 +6,26 @@ import 'package:emart/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-BuildContext? ctxAA;
-var ctxProgressAA;
-
-class AddAddressScreen extends StatelessWidget {
-  AddAddressScreen(BuildContext ctxLS1, this.addressName, {Key? key})
-      : super(key: key) {
-    ctxAA = ctxLS1;
-  }
+class AddAddressScreen extends StatefulWidget {
+  AddAddressScreen(this.addressName, {Key? key}) : super(key: key);
 
   String addressName = "";
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ProgressHUD(
-      backgroundColor: Colors.white,
-      indicatorColor: ColorAll.colorsPrimary,
-      textStyle: TextStyle(
-        color: ColorAll.colorsPrimary,
-        fontSize: 18.sp,
-      ),
-      child: Builder(
-        builder: (ctxProg) => MyAddAddressScreen(ctxProg, addressName),
-      ),
-    );
-  }
+  State<AddAddressScreen> createState() => _AddAddressScreenState();
 }
 
-class MyAddAddressScreen extends StatefulWidget {
-  MyAddAddressScreen(BuildContext ctxProg, this.addressName, {Key? key})
-      : super(key: key) {
-    ctxProgressAA = ctxProg;
-  }
-
-  String addressName = "";
-
-  @override
-  State<MyAddAddressScreen> createState() => _MyAddAddressScreenState();
-}
-
-class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
-  var progress;
-  TextEditingController _addressnameController = TextEditingController();
-  TextEditingController _streetController = TextEditingController();
-  TextEditingController _areaController = TextEditingController();
-  TextEditingController _cityController = TextEditingController();
-  TextEditingController _stateController = TextEditingController();
-  TextEditingController _countryController = TextEditingController();
-  TextEditingController _postalcodeController = TextEditingController();
-  TextEditingController _mobilenumberController = TextEditingController();
+class _AddAddressScreenState extends State<AddAddressScreen> {
+  final TextEditingController _addressnameController = TextEditingController();
+  final TextEditingController _streetController = TextEditingController();
+  final TextEditingController _areaController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _countryController = TextEditingController();
+  final TextEditingController _postalcodeController = TextEditingController();
+  final TextEditingController _mobilenumberController = TextEditingController();
 
   bool isDefault = false;
 
@@ -76,14 +39,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
   }
 
   getAddress() async {
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressAA);
-      progress.show();
-
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+    context.loaderOverlay.show();
 
     var userId = FirebaseAuth.instance.currentUser?.uid;
     var dbRef = FirebaseDatabase.instance
@@ -96,7 +52,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
       final data = Map<String, dynamic>.from(
         event.snapshot.value as Map,
       );
-      print('data=-=' + data.toString());
+      print('data=-=$data');
       setState(() {
         _addressnameController.text = data['address_name'];
         _streetController.text = data['street_address'];
@@ -119,22 +75,16 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
       UiUtils.showToast('No adress present');
     }
 
-    Timer(const Duration(milliseconds: 20), () {
-      progress.dismiss();
-    });
+    if (mounted) {
+      context.loaderOverlay.hide();
+    }
   }
 
   Future<void> addAddress() async {
     print('add new called');
     var userId = FirebaseAuth.instance.currentUser?.uid;
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressAA);
-      progress.show();
 
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+    context.loaderOverlay.show();
 
     var ref = FirebaseDatabase.instance.ref().child(
         'users/$userId/address/${_addressnameController.text.toString()}');
@@ -151,23 +101,18 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
     });
 
     UiUtils.showToast('Address Added');
-    Navigator.of(ctxAA!).pop(true);
-    Timer(const Duration(milliseconds: 20), () {
-      progress.dismiss();
-    });
+    if (mounted) {
+      Navigator.of(context).pop(true);
+
+      context.loaderOverlay.hide();
+    }
   }
 
   Future<void> updateAddress() async {
     print('update called');
     var userId = FirebaseAuth.instance.currentUser?.uid;
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressAA);
-      progress.show();
 
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+    context.loaderOverlay.show();
 
     var ref = FirebaseDatabase.instance.ref().child(
         'users/$userId/address/${_addressnameController.text.toString()}');
@@ -184,10 +129,9 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
     });
 
     UiUtils.showToast('Address Added');
-    Navigator.of(ctxAA!).pop(true);
-    Timer(const Duration(milliseconds: 20), () {
-      progress.dismiss();
-    });
+    Navigator.of(context).pop(true);
+
+    context.loaderOverlay.hide();
   }
 
   @override
@@ -199,107 +143,104 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
         backgroundColor: Colors.blueGrey[50],
         appBar: AppBar(
           backgroundColor: ColorAll.colorsPrimary,
-          title: Text('Add Address'),
+          title: const Text('Add Address'),
           leading: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.chevron_left,
               color: Colors.white,
               size: 35,
             ),
             onPressed: () {
-              Navigator.of(ctxAA!).pop(false);
+              Navigator.of(context).pop(false);
             },
           ),
         ),
         body: Container(
             // height: mainHeight,
-            padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
             child: SingleChildScrollView(
               child: Column(children: [
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "Address Name",
                   hintText: "Enter Address Name",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _addressnameController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "Street Address",
                   hintText: "Flat No. or Building name",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _streetController,
                   textInputAction: TextInputAction.next,
                 ),
                 TextFieldWidget(
                   text: "Area Name",
                   hintText: "Area name",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _areaController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "City",
                   hintText: "Enter City",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _cityController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "State",
                   hintText: "Enter State",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _stateController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "Country",
                   hintText: "Enter Country",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   controller: _countryController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 1.h,
+                const SizedBox(
+                  height: 1,
                 ),
                 TextFieldWidget(
                   text: "Postal Code",
                   hintText: "Enter Postal Code",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   keyBoardType: TextInputType.number,
                   controller: _postalcodeController,
                   textInputAction: TextInputAction.next,
                 ),
-                SizedBox(
-                  height: 2.h,
+                const SizedBox(
+                  height: 2,
                 ),
                 TextFieldWidget(
                   text: "Mobile Number",
                   hintText: "Enter Mobile Number",
-                  containerHeight: 36.h,
+                  containerHeight: 36,
                   keyBoardType: TextInputType.number,
                   controller: _mobilenumberController,
                   textInputAction: TextInputAction.next,
                 ),
-                // SizedBox(
-                //   height: 2.h,
-                // ),
                 Container(
-                  margin: EdgeInsets.only(bottom: 10),
+                  margin: const EdgeInsets.only(bottom: 10),
                   child: CheckboxListTile(
                     title: const Text('Make as Default Address'),
                     autofocus: false,
@@ -338,7 +279,7 @@ class _MyAddAddressScreenState extends State<MyAddAddressScreen> {
                         UiUtils.showToast('Please enter all Fields');
                       }
                     },
-                    child: Text(
+                    child: const Text(
                       "Submit",
                       style: TextStyle(fontSize: 15.0, color: Colors.white),
                     ),

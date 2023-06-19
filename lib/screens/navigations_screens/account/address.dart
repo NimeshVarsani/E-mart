@@ -1,64 +1,22 @@
-import 'dart:async';
-
 import 'package:emart/main.dart';
 import 'package:emart/screens/navigations_screens/account/add_address.dart';
+import 'package:emart/utils/app_icons.dart';
 import 'package:emart/utils/ui_utils.dart';
-import 'package:emart/widgets/noDataFound.dart';
 import 'package:emart/widgets/shimmerLoadingContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_progress_hud/flutter_progress_hud.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
-BuildContext? ctxA;
-var ctxProgressA;
-
-class AddressScreen extends StatelessWidget {
-  AddressScreen(BuildContext ctxLS1, {Key? key}) : super(key: key) {
-    ctxA = ctxLS1;
-  }
+class AddressScreen extends StatefulWidget {
+  const AddressScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
-    return ScreenUtilInit(
-        designSize: const Size(360, 690),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return ProgressHUD(
-            backgroundColor: Colors.white,
-            indicatorColor: ColorAll.colorsPrimary,
-            textStyle: TextStyle(
-              color: ColorAll.colorsPrimary,
-              fontSize: 18.sp,
-            ),
-            child: Builder(
-              builder: (ctxProg) => MyAddressScreen(ctxProg),
-            ),
-          );
-        });
-  }
+  State<AddressScreen> createState() => _AddressScreenState();
 }
 
-class MyAddressScreen extends StatefulWidget {
-  MyAddressScreen(BuildContext ctxProg, {Key? key}) : super(key: key) {
-    ctxProgressA = ctxProg;
-  }
-
-  @override
-  State<MyAddressScreen> createState() => _MyAddressScreenState();
-}
-
-class _MyAddressScreenState extends State<MyAddressScreen> {
-  var progress;
-  bool hasAddData = false;
+class _AddressScreenState extends State<AddressScreen> {
+  bool isLoading = true;
   List addressList = [];
   String addressName = "";
   String streetAddress = "";
@@ -86,22 +44,29 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
         .child('users/${FirebaseAuth.instance.currentUser?.uid}/address');
 
     databaseReference.once().then((snapshot) {
-      final data = Map<String, dynamic>.from(
-        snapshot.snapshot.value as Map,
-      );
-      print('jsonData=-=>' + data.toString());
-      print('jsonDatavalsss=-=>' + data.keys.toList().toString());
+      if (snapshot.snapshot.exists) {
+        final data = Map<String, dynamic>.from(
+          snapshot.snapshot.value as Map,
+        );
+        print('jsonData=-=>$data');
+        print('jsonDatavalsss=-=>${data.keys.toList()}');
 
-      // var list = data.values as List;
-      setState(() {
-        addressList = data.values.toList(growable: true);
-      });
-      print('list=-=>' + addressList.toString());
-      print('list=-=>' + addressList[0]['area'].toString());
-      setState(() {
-        // addressList = snapshot.snapshot.value as List;
-      });
-
+        // var list = data.values as List;
+        setState(() {
+          addressList = data.values.toList(growable: true);
+        });
+        print('list=-=>$addressList');
+        print('list=-=>${addressList[0]['area']}');
+        setState(() {
+          isLoading = false;
+          // addressList = snapshot.snapshot.value as List;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+          // addressList = snapshot.snapshot.value as List;
+        });
+      }
       // var jsonData = addressList[0]['address_name'];
       // print('jsonaddressList=-=>' + addressList.toString());
       // print('jsonData=-=>' + jsonData.toString());
@@ -149,22 +114,13 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
   }*/
 
   delAddress(String addressName) async {
-    Timer(const Duration(milliseconds: 15), () {
-      progress = ProgressHUD.of(ctxProgressA);
-      progress.show();
-
-      Timer(const Duration(seconds: 15), () {
-        progress.dismiss();
-      });
-    });
+    context.loaderOverlay.show();
 
     dbRef.child(addressName).remove();
     UiUtils.showToast('Address Deleted');
     _getAddress();
 
-    Timer(const Duration(milliseconds: 20), () {
-      progress.dismiss();
-    });
+    context.loaderOverlay.hide();
   }
 
   _showAddressDelDialog(String addressName) async {
@@ -193,6 +149,7 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
       },
     );
   }
+
   Widget buildAddressShimmer() {
     return ListView.builder(
         itemCount: 10,
@@ -207,12 +164,12 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
               child: Container(
                 width: double.infinity,
                 height: 200,
-                decoration: BoxDecoration(
-                  // color: context.color.secondaryColor,
-                  // border:
-                  //     Border.all(width: 1.5, color: context.color.borderColor),
-                ),
-                child: CustomShimmer(
+                decoration: const BoxDecoration(
+                    // color: context.color.secondaryColor,
+                    // border:
+                    //     Border.all(width: 1.5, color: context.color.borderColor),
+                    ),
+                child: const CustomShimmer(
                   width: double.infinity,
                   height: 400,
                 ),
@@ -222,23 +179,23 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
         });
   }
 
-
   @override
   Widget build(BuildContext context) {
     var mainWidth = MediaQuery.of(context).size.width;
     var mainHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: Colors.blueGrey[50],
+      backgroundColor: Colors.white,
+      // backgroundColor: Colors.blueGrey[50],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: ColorAll.colorsPrimary,
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(ctxA!);
+            Navigator.pop(context);
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: Text(
+        title: const Text(
           "Addresses",
           style: TextStyle(
             fontSize: 18.0,
@@ -251,160 +208,204 @@ class _MyAddressScreenState extends State<MyAddressScreen> {
               Navigator.of(context)
                   .push(
                 MaterialPageRoute(
-                  builder: (context) => AddAddressScreen(context, ""),
+                  builder: (context) => AddAddressScreen(""),
                 ),
               )
                   .then((value) {
                 setState(() {
-                  if(value == true){
+                  if (value == true) {
                     _getAddress();
                   }
                 });
               });
             },
-            child: Text(
+            child: const Text(
               '+ Add address',
               style: TextStyle(color: Colors.white),
             ),
           )
         ],
       ),
-      body: (addressList.isNotEmpty) ? ListView.builder(
-        itemCount: addressList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return Column(
-            children: [
-              Card(
-                margin: EdgeInsets.all(13),
-                elevation: 3,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (addressList[index]['default'].toString() ==
-                                '1')
-                              Container(
-                                height: 20,
-                                width: 65,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(5)),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "DEFAULT",
-                                    style: TextStyle(
-                                        fontSize: 13.0, color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(addressList[index]['address_name'].toString(),
+      body: (isLoading)
+          ? buildAddressShimmer()
+          : (addressList.isNotEmpty)
+              ? _mainWidget()
+              : _noDataWidget(),
+    );
+  }
 
-                              style: TextStyle(
-                                  fontSize: 15.0, color: Colors.black),
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Text(addressList[index]['street_address'].toString() +
-                                ","),
-                            Text(addressList[index]['area'].toString() +
-                                ", " +
-                                addressList[index]['city'].toString() +
-                                ","),
-                            // Text(city.toString() + ","),
-                            Text(
-                                addressList[index]['state'].toString() + ","),
-                            Text(addressList[index]['country'].toString()),
-                            Text(addressList[index]['pincode'].toString()),
-                            SizedBox(
-                              height: 4,
-                            ),
-                            Text(
-                              "Phone: " +
-                                  addressList[index]['mob_no'].toString(),
-                              style: TextStyle(
-                                  fontSize: 15.0, color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
+  Widget _mainWidget() {
+    return ListView.builder(
+      itemCount: addressList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Column(
+          children: [
+            Card(
+              margin: const EdgeInsets.all(13),
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.white),
+                          if (addressList[index]['default'].toString() == '1')
+                            Container(
+                              height: 20,
+                              width: 65,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
                               ),
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => AddAddressScreen(
-                                        context,
-                                        addressList[index]['address_name'].toString()),
-                                  ),
-                                ).then((value) {
-                                  if(value == true){
-                                    _getAddress();
-                                  }
-                                });
-                              },
-                              child: Text(
-                                'Edit',
-                                style: TextStyle(
-                                    fontSize: 14.0, color: Colors.blue),
+                              child: const Center(
+                                child: Text(
+                                  "DEFAULT",
+                                  style: TextStyle(
+                                      fontSize: 13.0, color: Colors.white),
+                                ),
                               ),
                             ),
+                          const SizedBox(
+                            height: 10,
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.white),
-                              ),
-                              onPressed: () {
-                                // _showAddressDelDialog(snapshot
-                                //     .child('address_name')
-                                //     .value
-                                //     .toString());
-                                _showAddressDelDialog(
-                                    addressList[index]['address_name'].toString());
-                              },
-                              child: Text(
-                                'Delete',
-                                style: TextStyle(
-                                    fontSize: 14.0, color: Colors.red),
-                              ),
-                            ),
+                          Text(
+                            addressList[index]['address_name'].toString(),
+                            style: const TextStyle(
+                                fontSize: 15.0, color: Colors.black),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Text("${addressList[index]['street_address']},"),
+                          Text(
+                              "${addressList[index]['area']}, ${addressList[index]['city']},"),
+                          // Text(city.toString() + ","),
+                          Text("${addressList[index]['state']},"),
+                          Text(addressList[index]['country'].toString()),
+                          Text(addressList[index]['pincode'].toString()),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Text(
+                            "Phone: ${addressList[index]['mob_no']}",
+                            style: const TextStyle(
+                                fontSize: 15.0, color: Colors.black),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .push(
+                                MaterialPageRoute(
+                                  builder: (context) => AddAddressScreen(
+                                      addressList[index]['address_name']
+                                          .toString()),
+                                ),
+                              )
+                                  .then((value) {
+                                if (value == true) {
+                                  _getAddress();
+                                }
+                              });
+                            },
+                            child: const Text(
+                              'Edit',
+                              style:
+                                  TextStyle(fontSize: 14.0, color: Colors.blue),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.white),
+                            ),
+                            onPressed: () {
+                              // _showAddressDelDialog(snapshot
+                              //     .child('address_name')
+                              //     .value
+                              //     .toString());
+                              _showAddressDelDialog(addressList[index]
+                                      ['address_name']
+                                  .toString());
+                            },
+                            child: const Text(
+                              'Delete',
+                              style:
+                                  TextStyle(fontSize: 14.0, color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
-      ) : buildAddressShimmer(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _noDataWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: UiUtils.getScreenHeight(context, 0.4),
+            child: UiUtils.getAssetImage(AppIcons.no_data_found),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+            child: Text(
+              "You have no Address Yet!",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.grey.shade800),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(25, 10, 25, 5),
+            child: Center(
+              child: Text(
+                "You can Add address by clicking on the ",
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: Colors.grey.shade600),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(25, 2, 25, 5),
+            child: Center(
+              child: Text(
+                "Add address Button",
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: Colors.grey.shade600),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -20,7 +20,7 @@ class MySharedPreferences {
     // myPrefs.getKeys().forEach((element) {
     //   print("ele==>"+element);
     // });
-    if(myPrefs!=null && myPrefs.containsKey(key)) {
+    if(myPrefs.containsKey(key)) {
       return myPrefs.get(key) == null || myPrefs.get(key) == ""
           ? defaultVal
           : myPrefs.getString(key);
@@ -65,11 +65,11 @@ class MySharedPreferences {
   }
 
   saveUser(String jsonString) async {
-    SharedPreferences shared_User = await SharedPreferences.getInstance();
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
     //  Map decode_options = jsonDecode(jsonString);
     //  String user = jsonEncode(User.fromJson(decode_options));
-    shared_User.setString('user', jsonString);
-    shared_User.commit();
+    sharedUser.setString('user', jsonString);
+    sharedUser.commit();
   }
 
 /*User getUser(SharedPreferences shared_User)  {

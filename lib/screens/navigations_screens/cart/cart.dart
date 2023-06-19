@@ -14,11 +14,10 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-
   bool isCartLoaded = false;
   List cartList = [];
 
-  int _quantity = 0;
+  final int _quantity = 0;
 
   final _dbRef = FirebaseDatabase.instance
       .ref()
@@ -45,40 +44,39 @@ class _CartState extends State<Cart> {
         // cartList = data.values.toList(growable: true);
         isCartLoaded = true;
       });
-      print('listlist=-=>' + list.toString());
-      print('list=-=>' + cartList.toString());
+      print('listlist=-=>$list');
+      print('list=-=>$cartList');
       // print('list=-=>' + cartList[0]['brand'].toString());
     });
   }
 
   _showCartDelDialog(String pId) async {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Are you sure you want to Remove Item?'),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('No'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _dbRef.child(pId).remove();
-                  _getCartData();
-                  UiUtils.showToast('Product Removed');
-
-                },
-                child: const Text('Yes'),
-              ),
-            ],
-          );
-        },
-      );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to Remove Item?'),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('No'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _dbRef.child(pId).remove();
+                _getCartData();
+                UiUtils.showToast('Product Removed');
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget buildCartShimmer() {
@@ -94,22 +92,32 @@ class _CartState extends State<Cart> {
               child: ClipRRect(
                 clipBehavior: Clip.antiAlias,
                 borderRadius: BorderRadius.circular(18),
-                child: Container(
+                child: const SizedBox(
                   width: double.infinity,
-                  child: const Row(
+                  child: Row(
                     children: [
-                      CustomShimmer(height: 100, width: 100,),
+                      CustomShimmer(
+                        height: 100,
+                        width: 100,
+                      ),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            CustomShimmer(height: 10, width: 100, margin: EdgeInsets.symmetric(horizontal: 14),),
-                            SizedBox(
-                              height:10,
+                            CustomShimmer(
+                              height: 10,
+                              width: 100,
+                              margin: EdgeInsets.symmetric(horizontal: 14),
                             ),
-                            CustomShimmer(height: 10, width: 60,margin: EdgeInsets.symmetric(horizontal: 14),),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            CustomShimmer(
+                              height: 10,
+                              width: 60,
+                              margin: EdgeInsets.symmetric(horizontal: 14),
+                            ),
                             SizedBox(
                               height: 5,
                             ),
@@ -194,7 +202,7 @@ class _CartState extends State<Cart> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  *//*Row(
+                                  */ /*Row(
                                     children: [
                                       IconButton(
                                         onPressed: _quantity > 1
@@ -214,7 +222,7 @@ class _CartState extends State<Cart> {
                                         icon: Icon(Icons.add_circle_outline),
                                       ),
                                     ],
-                                  ),*//*
+                                  ),*/ /*
                                 ],
                               ),
                             ),
@@ -228,7 +236,7 @@ class _CartState extends State<Cart> {
                         ),
                       ),
                     );
-                    *//*Center(
+                    */ /*Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -275,7 +283,7 @@ class _CartState extends State<Cart> {
                           ),
                         ],
                       ),
-                    );*//*
+                    );*/ /*
                   }),
             ) : noDataFound(context) : Expanded(child: buildCartShimmer()),
           ],
@@ -288,152 +296,155 @@ class _CartState extends State<Cart> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        padding: const EdgeInsets.only(top: 28),
-        child: Column(
-          children: [
-            AppBar(
-              title: const Text('Cart'),
-              backgroundColor: ColorAll.colorsPrimary,
-            ),
-            Expanded(
-              child: FirebaseAnimatedList(
+      appBar: AppBar(
+        title: const Text('Cart'),
+        backgroundColor: ColorAll.colorsPrimary,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: FirebaseAnimatedList(
                 defaultChild: buildCartShimmer(),
-                  padding: const EdgeInsets.only(top: 5,bottom: 33, left: 4, right: 4),
-                  query: _dbRef,
-                  itemBuilder: (context, snapshot, animation, index) {
-                      return Card(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 100,
-                                height: 100.0,
-                                margin: const EdgeInsets.only(right: 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(8.0),
-                                  ),
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                        snapshot.child('thumbnail').value.toString()),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      snapshot.child('title').value.toString(),
-                                      style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      '\$${snapshot.child('price').value.toString()}',
-                                      style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    /*Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: _quantity > 1
-                                            ? () => setState(() => _quantity = _quantity-1)
-                                            : null,
-                                        icon: Icon(Icons.remove_circle_outline),
-                                      ),
-                                      Text(
-                                        '$_quantity',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () => setState(() => _quantity = _quantity + 1),
-                                        icon: Icon(Icons.add_circle_outline),
-                                      ),
-                                    ],
-                                  ),*/
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                  onPressed: (){
-                                    _showCartDelDialog(snapshot.child('productId').value.toString());
-                                  },
-                                  icon: const Icon(Icons.delete)),
-                            ],
-                          ),
-                        ),
-                      );
-                    /* Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                padding: const EdgeInsets.only(
+                    top: 5, bottom: 33, left: 4, right: 4),
+                query: _dbRef,
+                itemBuilder: (context, snapshot, animation, index) {
+                  return Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      child: Row(
                         children: [
-                          Image.asset(
-                            'assets/images/cart.png',
-                            height: 150,
-                          ),
-                          const SizedBox(
-                            height: 25.0,
-                          ),
-                          const Text(
-                            'Your cart is empty!',
-                            style: TextStyle(
-                              fontSize: 22,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 40.0,
-                          ),
                           Container(
-                            width: MediaQuery.of(context).size.width / 1.8,
-                            height: 40,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                elevation: MaterialStateProperty.all(0),
-                                backgroundColor:
-                                MaterialStateProperty.all(const Color(0xff2874F0)),
+                            width: 100,
+                            height: 100.0,
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(8.0),
                               ),
-                              onPressed: () {
-                                BottomNavigationBar navigationBar = bottomWidgetKey
-                                    .currentWidget as BottomNavigationBar;
-                                navigationBar.onTap!(0);
-                              },
-                              child: const Text(
-                                'Shop now',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                              image: DecorationImage(
+                                image: NetworkImage(snapshot
+                                    .child('thumbnail')
+                                    .value
+                                    .toString()),
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(
+                                  snapshot.child('title').value.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  '\$${snapshot.child('price').value.toString()}',
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                /*Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: _quantity > 1
+                                          ? () => setState(() => _quantity = _quantity-1)
+                                          : null,
+                                      icon: Icon(Icons.remove_circle_outline),
+                                    ),
+                                    Text(
+                                      '$_quantity',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () => setState(() => _quantity = _quantity + 1),
+                                      icon: Icon(Icons.add_circle_outline),
+                                    ),
+                                  ],
+                                ),*/
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () {
+                                _showCartDelDialog(snapshot
+                                    .child('productId')
+                                    .value
+                                    .toString());
+                              },
+                              icon: const Icon(Icons.delete)),
                         ],
                       ),
-                    ); */
-                  }),
-            ),
-          ],
-        ),
+                    ),
+                  );
+                  /* Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/images/cart.png',
+                          height: 150,
+                        ),
+                        const SizedBox(
+                          height: 25.0,
+                        ),
+                        const Text(
+                          'Your cart is empty!',
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 40.0,
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width / 1.8,
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              elevation: MaterialStateProperty.all(0),
+                              backgroundColor:
+                              MaterialStateProperty.all(const Color(0xff2874F0)),
+                            ),
+                            onPressed: () {
+                              BottomNavigationBar navigationBar = bottomWidgetKey
+                                  .currentWidget as BottomNavigationBar;
+                              navigationBar.onTap!(0);
+                            },
+                            child: const Text(
+                              'Shop now',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ); */
+                }),
+          ),
+        ],
       ),
     );
   }
